@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+
+/* src/colors.css */
+:root {
+  --color-primary: #e11d48;   /* Tailwind rose-600 */
+  --color-primary-hover: #f43f5e; /* Tailwind rose-500 */
+  --color-accent: #fbbf24;    /* Tailwind amber-400 */
+  --color-bg: #fff1f2;        /* Tailwind rose-50 */
+  --color-section: #f5f5f4;   /* Tailwind stone-100 */
+  --color-text-main: #1c1917; /* Tailwind stone-800 */
+  --color-text-soft: #78716c; /* Tailwind stone-500 */
+}
