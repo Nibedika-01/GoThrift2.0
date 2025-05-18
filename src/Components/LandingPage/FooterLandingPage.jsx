@@ -3,15 +3,13 @@ import React from 'react'
 const FooterLandingPage = () => {
   return (
     <>
-    <footer class="flex flex-col space-y-10 justify-center m-10">
+    <footer id='footer' class="flex flex-col space-y-10 justify-center bg-[#f5f2eb] p-30">
 
     <nav class="flex justify-center flex-wrap gap-6 text-gray-500 font-medium">
         <a class="hover:text-gray-900" href="#">Home</a>
-        <a class="hover:text-gray-900" href="#">About</a>
-        <a class="hover:text-gray-900" href="#">Services</a>
-        <a class="hover:text-gray-900" href="#">Media</a>
-        <a class="hover:text-gray-900" href="#">Gallery</a>
-        <a class="hover:text-gray-900" href="#">Contact</a>
+        <a class="hover:text-gray-900" href="#features">Features</a>
+        <a class="hover:text-gray-900" href="#aboutUs">About Us</a>
+        <a class="hover:text-gray-900" href="#contact">Contact</a>
     </nav>
 
     <div class="flex justify-center space-x-5">

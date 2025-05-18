@@ -1,34 +1,35 @@
 import React from 'react'
+// import '../../assets/Images/nibeik'
 
 const AboutUsLandingPage = () => {
 
   const profiles = [
     {
-      name: 'John Doe',
-      position: 'Frontend Developer & UI Designer',
-      img: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&auto=format&fit=crop&w=880&q=80',
-      gradient: 'from-purple-500 to-pink-500',
-      textColor: 'text-purple-600',
+      name: 'Nibedika Gautam',
+      position: 'Developer',
+      img: '',
+      gradient: 'from-rose-100 to-rose-400',
+      textColor: 'text-rose-300',
     },
     {
-      name: 'Jane Smith',
-      position: 'Backend Developer & DevOps Engineer',
+      name: 'Krip Khatri',
+      position: 'Developer',
       img: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-4.0.3&auto=format&fit=crop&w=880&q=80',
-      gradient: 'from-green-400 to-teal-500',
-      textColor: 'text-teal-600',
+      gradient: 'from-rose-100 to-rose-400',
+      textColor: 'text-rose-300',
     },
     {
-      name: 'Emily Johnson',
-      position: 'UI/UX Designer & Illustrator',
+      name: 'Prajeena Bhlon',
+      position: 'Developer',
       img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=880&q=80',
-      gradient: 'from-pink-400 to-red-500',
-      textColor: 'text-red-600',
+      gradient: 'from-rose-100 to-rose-400',
+      textColor: 'text-rose-300',
     },
   ];
 
     return (
         <>
-            <div className="flex flex-wrap justify-center gap-8 max-w-7xl w-full p-6 mx-auto">
+            <div id='aboutUs' className="flex flex-wrap justify-center gap-8  w-full mx-auto bg-[#f5f2eb]">
                 {profiles.map(({ name, position, img, gradient, textColor }, i) => (
                     <div
                         key={i}

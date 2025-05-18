@@ -11,3 +11,8 @@
   --color-text-main: #1c1917; /* Tailwind stone-800 */
   --color-text-soft: #78716c; /* Tailwind stone-500 */
 }
+
+
+html {
+  scroll-behavior: smooth;
+}

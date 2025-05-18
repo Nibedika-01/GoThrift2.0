@@ -1,16 +1,15 @@
-// src/Pages/LandingPage.jsx
-import React from 'react';
-import LandingPageNavBar from '../Components/LandingPage/LandingPageNavBar';
-import HeroSection from '../Components/LandingPage/LandingPageHero';
+
 import FeatureLandingPage from '../Components/LandingPage/FeatureLandingPage';
 import FooterLandingPage from '../Components/LandingPage/FooterLandingPage';
 import AboutUsLandingPage from '../Components/LandingPage/AboutUsLandingPage';
+import NavLandingPage from '../Components/LandingPage/NavLandingPage';
+import HeroLandingPage from '../Components/LandingPage/HeroLandingPage';
 
 const LandingPage = () => {
     return (
         <>
-            <LandingPageNavBar />
-            <HeroSection />
+            <NavLandingPage/>
+            <HeroLandingPage/>
             <FeatureLandingPage/>
             <AboutUsLandingPage/>
             <FooterLandingPage/>
