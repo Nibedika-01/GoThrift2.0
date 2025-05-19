@@ -1,16 +1,27 @@
-import React from "react";
+import { useNavigate } from "react-router-dom";
 import hero from "../../assets/Images/hero_img.png";
+import heroMobile from "../../assets/Images/hero_mobile.png"
 
 const HeroLandingPage = () => {
+  const navigate = useNavigate();
+
+  const goToHomePage = () => {
+    navigate('/home'); // change '/' to your actual route if needed
+  };
+
   return (
     <div className="w-full bg-[#f5f2eb] pt-28 min-h-screen flex justify-center">
       <div className="relative flex flex-col items-center lg:flex-row-reverse w-full max-w-6xl">
         {/* Image Section */}
         <div className="w-full h-64 lg:w-1/2 lg:h-auto rounded-lg overflow-hidden shadow-lg">
+          <img className="h-full w-full object-cover block lg:hidden"
+            src={heroMobile}
+            alt="Hero Mobile"
+          />
           <img
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover hidden lg:block"
             src={hero}
-            alt="Hero Girl"
+            alt="Hero Desktop"
           />
         </div>
 
@@ -24,14 +35,12 @@ const HeroLandingPage = () => {
               Discover affordable fashion treasures that don't cost the earth. Our curated thrift collection is perfect for
               fashionistas who love style <em>and</em> sustainability.
             </p>
-            <div className="mt-8">
-              <a
-                href="#"
-                className="inline-block w-full text-center text-lg font-body font-semibold text-white bg-rose-500 border-2 border-rose-600 py-3 px-8 hover:bg-rose-600 hover:shadow-lg transition-all duration-300 md:w-48 rounded-full shadow-md"
-              >
-                Visit Store
-              </a>
-            </div>
+            <button
+              onClick={goToHomePage}
+              className="mt-8 inline-block w-full text-lg font-body font-semibold text-white bg-rose-500 border-2 border-rose-600 py-3 px-8 hover:bg-rose-600 hover:shadow-lg transition-all duration-300 md:w-48 rounded-full shadow-md"
+            >
+              Visit Store
+            </button>
           </div>
         </div>
       </div>
