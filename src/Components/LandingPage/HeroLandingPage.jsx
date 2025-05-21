@@ -37,7 +37,7 @@ const HeroLandingPage = () => {
             </p>
             <button
               onClick={goToHomePage}
-              className="mt-8 inline-block w-full text-lg font-body font-semibold text-white bg-rose-500 border-2 border-rose-600 py-3 px-8 hover:bg-rose-600 hover:shadow-lg transition-all duration-300 md:w-48 rounded-full shadow-md"
+              className="mt-8 inline-block w-full text-lg font-body font-semibold text-white bg-rose-700 border-2 border-rose-600 py-3 px-8 hover:bg-rose-600 hover:shadow-lg transition-all duration-300 md:w-48 rounded-full shadow-md cursor-pointer"
             >
               Visit Store
             </button>

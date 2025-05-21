@@ -31,7 +31,7 @@ const AboutUsLandingPage = () => {
 
     return (
         <>
-            <div id='aboutUs' className='w-full mx-auto bg-[#f5f2eb] max-w-screen-xl mx-auto px-4 space-y-6'>
+            <div id='aboutUs' className= "w-full mx-auto bg-[#f5f2eb] px-4 space-y-6">
                 <div className="flex flex-col items-center space-y-4 text-center">
                     <h2 className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-6xl text-rose-700">
                         About Us

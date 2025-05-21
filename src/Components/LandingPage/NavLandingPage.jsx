@@ -16,7 +16,7 @@ const NavLandingPage = () => {
   return (
     <nav className="fixed top-0 left-0 w-full bg-rose-50 border-b border-rose-200 shadow-md z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="#" className="items-center font-logo leading-none">
+        <a href="#" className="items-center space-x-0 l:space-x-reverse">
           <span className="text-[27px] text-rose-700 font-extrabold tracking-wide">Go</span>
           <span className="text-[32px] text-rose-700 font-extrabold">Thrift</span>
         </a>
@@ -24,7 +24,7 @@ const NavLandingPage = () => {
           <button
           onClick={gotoHomepage}
             type="button"
-            className="text-white bg-rose-600 hover:bg-rose-500 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+            className="text-white bg-rose-700 hover:bg-rose-600 focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm px-4 py-2 text-center cursor-pointer"
           >
             Visit Store
           </button>
@@ -60,7 +60,7 @@ const NavLandingPage = () => {
             <li>
               <a
                 href="#"
-                className="block py-2 px-3 bg-rose-700 text-rose-50 rounded-sm md:bg-transparent md:text-rose-600 hover:bg-rose-600"
+                className="block py-2 px-3 md:p-0 text-rose-700 rounded-sm md:bg-transparent md:text-rose-700 hover:text-rose-600"
                 aria-current="page"
               >
                 Home
@@ -68,7 +68,7 @@ const NavLandingPage = () => {
             </li>
             <li>
               <a href="#features"
-                className="block py-2 px-3 md:p-0 text-rose-700 rounded-sm md:bg-transparent md:text-rose-600 md:dark:text-rose-700"
+                className="block py-2 px-3 md:p-0 text-rose-700 rounded-sm md:bg-transparent md:text-rose-600 md:dark:text-rose-700  hover:text-rose-600"
               >
                 Features
               </a>
@@ -77,7 +77,7 @@ const NavLandingPage = () => {
             <li>
               <a
                 href="#aboutUs"
-                className="block py-2 px-3 md:p-0 text-rose-700 rounded-sm hover:bg-rose-100 md:hover:bg-transparent md:hover:text-rose-600 md:dark:hover:text-rose-700"
+                className="block py-2 px-3 md:p-0 text-rose-700 rounded-sm hover:text-rose-600 md:hover:bg-transparent md:hover:text-rose-600  "
               >
                 About Us
               </a>
@@ -85,7 +85,7 @@ const NavLandingPage = () => {
             <li>
               <a
                 href="#footer"
-                className="block py-2 px-3 md:p-0 text-rose-700 rounded-sm hover:bg-rose-100 md:hover:bg-transparent md:hover:text-rose-600 md:dark:hover:text-rose-700"
+                className="block py-2 px-3 md:p-0 text-rose-700 rounded-sm md:hover:bg-transparent md:hover:text-rose-600  hover:text-rose-600"
               >
                 Contact Us
               </a>
