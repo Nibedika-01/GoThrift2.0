@@ -63,7 +63,7 @@ const LoginHomePage = () => {
                                 >
                                     Login
                                 </button>
-                                <p className="text-sm font-light text-rose-500">
+                                <p className="text-sm text-center text-rose-500">
                                     This cutie doesn’t have an account yet?{' '}
                                     <Link to="/signup" className="font-medium text-rose-600 hover:underline">
                                         Sign up here

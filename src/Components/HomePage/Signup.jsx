@@ -24,6 +24,11 @@ const Signup = () => {
                     </div>
 
                     <div>
+                        <label htmlFor="phone" className="block mb-1 text-sm font-medium text-rose-700">Your phone number</label>
+                        <input type="number" id="phone" className="w-full p-2.5 border border-rose-200 rounded-lg bg-rose-50 text-rose-800 placeholder:text-rose-400 focus:ring-rose-300 focus:border-rose-400" placeholder="98•••••••" required />
+                    </div>
+
+                    <div>
                         <label htmlFor="password" className="block mb-1 text-sm font-medium text-rose-700">Password</label>
                         <input type="password" id="password" className="w-full p-2.5 border border-rose-200 rounded-lg bg-rose-50 text-rose-800 placeholder:text-rose-400 focus:ring-rose-300 focus:border-rose-400" placeholder="••••••••" required />
                     </div>
