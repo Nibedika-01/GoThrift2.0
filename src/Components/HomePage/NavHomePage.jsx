@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import cart from '../../assets/Images/cart_icon.png'
+import user from '../../assets/Images/user_icon.png'
 import CartSideBar from "./CartSideBar";
 
 const Navbar = () => {
@@ -40,6 +41,12 @@ const Navbar = () => {
             <img src={cart} alt="Cart Icon"  />
           </button>
             {isCartOpen && <CartSideBar closeCart ={() => setIsCartOpen(!isCartOpen)} />}
+          <Link
+            to="/user"
+            className="relative w-8 p-1 pb-0 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm flex items-center "
+          >
+            <img src={user} alt="User Icon" />
+          </Link>   
         </div>
 
         {/* Hamburger Menu */}
