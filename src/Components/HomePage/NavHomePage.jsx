@@ -1,20 +1,27 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import cart from '../../assets/Images/cart_icon.png'
-import user from '../../assets/Images/user_icon.png'
+import cart from '../../assets/Images/cart_icon.png';
+import user from '../../assets/Images/user_icon.png';
 import CartSideBar from "./CartSideBar";
 
 const Navbar = () => {
-
   const navigateLogin = useNavigate();
   const gotoLogin = () => {
-    navigateLogin('/login')
-  }
+    navigateLogin('/login');
+  };
 
-  //toggle the hamburger icon
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const[isCartOpen, setIsCartOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const handleCategoryClick = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsCategoryOpen(false); // Close dropdown after clicking
+    setIsMainMenuOpen(false); // Close main menu on mobile
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-rose-50 border-b border-rose-200 shadow-md z-50">
@@ -36,17 +43,17 @@ const Navbar = () => {
           </Link>
           <button
             onClick={() => setIsCartOpen(!isCartOpen)}
-            className="relative w-8 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm flex items-center "
+            className="relative w-8 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm flex items-center"
           >
-            <img src={cart} alt="Cart Icon"  />
+            <img src={cart} alt="Cart Icon" />
           </button>
-            {isCartOpen && <CartSideBar closeCart ={() => setIsCartOpen(!isCartOpen)} />}
+          {isCartOpen && <CartSideBar closeCart={() => setIsCartOpen(!isCartOpen)} />}
           <Link
             to="/user"
-            className="relative w-8 p-1 pb-0 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm flex items-center "
+            className="relative w-8 p-1 pb-0 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm flex items-center"
           >
             <img src={user} alt="User Icon" />
-          </Link>   
+          </Link>
         </div>
 
         {/* Hamburger Menu */}
@@ -66,11 +73,6 @@ const Navbar = () => {
         {/* Main Navigation Links */}
         <div className={`w-full md:block md:w-auto ${isMainMenuOpen ? 'flex' : 'hidden'}`} id="navbar-dropdown">
           <ul className="flex flex-col font-medium p-2 md:p-0 mt-4 border border-rose-100 rounded-lg bg-rose-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-rose-50">
-            {/* <li>
-              <Link to="/" className="block py-2 px-3 text-rose-700 rounded-sm md:bg-transparent md:text-rose-700 md:p-0" aria-current="page">
-                Home
-              </Link>
-            </li> */}
             <li>
               <button
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
@@ -89,27 +91,42 @@ const Navbar = () => {
                 >
                   <ul className="py-2 text-sm text-rose-700" aria-labelledby="dropdownLargeButton">
                     <li>
-                      <Link to="/tops" className="block px-4 py-2 hover:bg-rose-100 hover:text-rose-800">
+                      <a
+                        href="#tops"
+                        onClick={() => handleCategoryClick('tops')}
+                        className="block px-4 py-2 hover:bg-rose-100 hover:text-rose-800"
+                      >
                         Tops
-                      </Link>
+                      </a>
                     </li>
                     <li>
-                      <Link to="/bottoms" className="block px-4 py-2 hover:bg-rose-100 hover:text-rose-800">
+                      <a
+                        href="#bottoms"
+                        onClick={() => handleCategoryClick('bottoms')}
+                        className="block px-4 py-2 hover:bg-rose-100 hover:text-rose-800"
+                      >
                         Bottoms
-                      </Link>
+                      </a>
                     </li>
                     <li>
-                      <Link to="/dresses" className="block px-4 py-2 hover:bg-rose-100 hover:text-rose-800">
+                      <a
+                        href="#dresses"
+                        onClick={() => handleCategoryClick('dresses')}
+                        className="block px-4 py-2 hover:bg-rose-100 hover:text-rose-800"
+                      >
                         Dresses
-                      </Link>
+                      </a>
                     </li>
                     <li>
-                      <Link to="/accessories" className="block px-4 py-2 hover:bg-rose-100 hover:text-rose-800">
+                      <a
+                        href="#accessories"
+                        onClick={() => handleCategoryClick('accessories')}
+                        className="block px-4 py-2 hover:bg-rose-100 hover:text-rose-800"
+                      >
                         Accessories
-                      </Link>
+                      </a>
                     </li>
                   </ul>
-                
                 </div>
               )}
             </li>
