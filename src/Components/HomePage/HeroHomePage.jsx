@@ -1,7 +1,8 @@
+// src/Components/HomePage/HeroHomePage.jsx
 import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import CartContext from '../../CartContext';
-import NavHome from '../HomePage/NavHomePage';
+import NavHome from './NavHomePage';
 
 const ProductsPage = () => {
   const { addToCart } = useContext(CartContext);
@@ -40,8 +41,7 @@ const ProductsPage = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product);
-    // Optional: Show a confirmation (e.g., alert or toast)
-    alert(`${product.name} added to cart!`);
+    alert(`${product.name} added to cart!`); // Temporary feedback
   };
 
   const ProductCard = ({ product }) => (
@@ -55,10 +55,8 @@ const ProductsPage = () => {
       </div>
       <div className="mt-4">
         <h3 className="text-sm text-rose-600 font-medium">
-          <Link to={`/product/${product.id}`}>
-            <span aria-hidden="true" className="absolute inset-0"></span>
-            {product.name}
-          </Link>
+          {/* Remove Link to prevent navigation */}
+          <span>{product.name}</span>
         </h3>
         <p className="mt-1 text-sm text-rose-400">{product.color}</p>
         <div className="mt-2 flex items-center justify-between">
@@ -128,7 +126,6 @@ const ProductsPage = () => {
           setSlideIndex={setRecentSlideIndex}
         />
       </div>
-
       <div id="tops" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="text-2xl font-bold tracking-tight text-rose-700">Tops</h2>
         <ProductSlider
@@ -137,7 +134,6 @@ const ProductsPage = () => {
           setSlideIndex={setTopsSlideIndex}
         />
       </div>
-
       <div id="bottoms" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="text-2xl font-bold tracking-tight text-rose-700">Bottoms</h2>
         <ProductSlider
@@ -146,7 +142,6 @@ const ProductsPage = () => {
           setSlideIndex={setBottomsSlideIndex}
         />
       </div>
-
       <div id="dresses" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="text-2xl font-bold tracking-tight text-rose-700">Dresses</h2>
         <ProductSlider
@@ -155,8 +150,7 @@ const ProductsPage = () => {
           setSlideIndex={setDressesSlideIndex}
         />
       </div>
-
-      <div id="accessories" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+      <div id="accessories" className="mx-auto max-w-2xl px-4 py-16 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="text-2xl font-bold tracking-tight text-rose-700">Accessories</h2>
         <ProductSlider
           products={products.accessories}
