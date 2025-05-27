@@ -1,11 +1,10 @@
-import { useState, useContext } from "react";
-import { Link } from "react-router-dom";
-import CartContext from "../CartContext";
-import NavHome from "../Components/HomePage/NavHomePage";
+import { useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import CartContext from '../../CartContext';
+import NavHome from '../HomePage/NavHomePage';
 
 const ProductsPage = () => {
   const { addToCart } = useContext(CartContext);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [recentSlideIndex, setRecentSlideIndex] = useState(0);
   const [topsSlideIndex, setTopsSlideIndex] = useState(0);
   const [bottomsSlideIndex, setBottomsSlideIndex] = useState(0);
@@ -14,33 +13,35 @@ const ProductsPage = () => {
 
   const products = {
     recent: [
-      { id: 1, name: "Vintage Graphic Tee", category: "Tops", color: "Black", price: 25, sizes: ["S", "M", "L"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg" },
-      { id: 2, name: "Denim Jacket", category: "Tops", color: "Blue", price: 45, sizes: ["M", "L", "XL"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg" },
-      { id: 3, name: "High-Waisted Jeans", category: "Bottoms", color: "Dark Wash", price: 35, sizes: ["28", "30", "32"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg" },
-      { id: 4, name: "Floral Maxi Dress", category: "Dresses", color: "Multicolor", price: 50, sizes: ["S", "M"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg" },
-      { id: 10, name: "Scarf", category: "Accessories", color: "Red", price: 12, sizes: ["One Size"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg" },
+      { id: 1, name: 'Vintage Graphic Tee', category: 'Tops', color: 'Black', price: 25, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
+      { id: 2, name: 'Denim Jacket', category: 'Tops', color: 'Blue', price: 45, sizes: ['M', 'L', 'XL'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
+      { id: 3, name: 'High-Waisted Jeans', category: 'Bottoms', color: 'Dark Wash', price: 35, sizes: ['28', '30', '32'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
+      { id: 4, name: 'Floral Maxi Dress', category: 'Dresses', color: 'Multicolor', price: 50, sizes: ['S', 'M'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg' },
+      { id: 10, name: 'Scarf', category: 'Accessories', color: 'Red', price: 12, sizes: ['One Size'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
     ],
     tops: [
-      { id: 5, name: "Cotton Blouse", color: "White", price: 20, sizes: ["S", "M", "L"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg" },
-      { id: 6, name: "Sweatshirt", color: "Gray", price: 30, sizes: ["M", "L", "XL"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg" },
-      { id: 11, name: "Flannel Shirt", color: "Plaid", price: 28, sizes: ["S", "M", "L"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg" },
+      { id: 5, name: 'Cotton Blouse', color: 'White', price: 20, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
+      { id: 6, name: 'Sweatshirt', color: 'Gray', price: 30, sizes: ['M', 'L', 'XL'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
+      { id: 11, name: 'Flannel Shirt', color: 'Plaid', price: 28, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
     ],
     bottoms: [
-      { id: 7, name: "Chinos", color: "Khaki", price: 28, sizes: ["30", "32", "34"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg" },
-      { id: 12, name: "Cargo Pants", color: "Green", price: 32, sizes: ["30", "32"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg" },
+      { id: 7, name: 'Chinos', color: 'Khaki', price: 28, sizes: ['30', '32', '34'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
+      { id: 12, name: 'Cargo Pants', color: 'Green', price: 32, sizes: ['30', '32'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
     ],
     dresses: [
-      { id: 8, name: "Summer Sundress", color: "Yellow", price: 40, sizes: ["S", "M"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg" },
-      { id: 13, name: "Cocktail Dress", color: "Black", price: 55, sizes: ["S", "M", "L"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg" },
+      { id: 8, name: 'Summer Sundress', color: 'Yellow', price: 40, sizes: ['S', 'M'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg' },
+      { id: 13, name: 'Cocktail Dress', color: 'Black', price: 55, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
     ],
     accessories: [
-      { id: 9, name: "Leather Belt", color: "Brown", price: 15, sizes: ["M", "L"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg" },
-      { id: 14, name: "Sunglasses", color: "Black", price: 18, sizes: ["One Size"], image: "https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg" },
+      { id: 9, name: 'Leather Belt', color: 'Brown', price: 15, sizes: ['M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
+      { id: 14, name: 'Sunglasses', color: 'Black', price: 18, sizes: ['One Size'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
     ],
   };
 
   const handleAddToCart = (product) => {
     addToCart(product);
+    // Optional: Show a confirmation (e.g., alert or toast)
+    alert(`${product.name} added to cart!`);
   };
 
   const ProductCard = ({ product }) => (
@@ -62,7 +63,7 @@ const ProductsPage = () => {
         <p className="mt-1 text-sm text-rose-400">{product.color}</p>
         <div className="mt-2 flex items-center justify-between">
           <p className="text-sm font-semibold text-rose-500">${product.price}</p>
-          <p className="text-sm text-rose-400">{product.sizes.join(", ")}</p>
+          <p className="text-sm text-rose-400">{product.sizes.join(', ')}</p>
         </div>
         <button
           onClick={() => handleAddToCart(product)}
@@ -120,9 +121,7 @@ const ProductsPage = () => {
     <div className="bg-pink-50 min-h-screen pt-16">
       <NavHome />
       <div id="recent" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-        <h2 className="text-2xl font-bold tracking-tight text-rose-700">
-          Recently Added Collection
-        </h2>
+        <h2 className="text-2xl font-bold tracking-tight text-rose-700">Recently Added Collection</h2>
         <ProductSlider
           products={products.recent}
           slideIndex={recentSlideIndex}
