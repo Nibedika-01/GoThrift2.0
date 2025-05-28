@@ -1,10 +1,10 @@
-// src/Components/HomePage/HeroHomePage.jsx
 import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import CartContext from '../../CartContext';
 import NavHome from './NavHomePage';
 
 const ProductsPage = () => {
+
   const { addToCart } = useContext(CartContext);
   const [recentSlideIndex, setRecentSlideIndex] = useState(0);
   const [topsSlideIndex, setTopsSlideIndex] = useState(0);
@@ -41,22 +41,24 @@ const ProductsPage = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product);
-    alert(`${product.name} added to cart!`); // Temporary feedback
   };
 
   const ProductCard = ({ product }) => (
     <div className="group relative bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
       <div className="relative">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="aspect-square w-full rounded-lg bg-rose-100 object-cover group-hover:opacity-80 lg:aspect-auto lg:h-80"
-        />
+        <Link to={`/product/${product.id}`}>
+          <img
+            src={product.image}
+            alt={product.name}
+            className="aspect-square w-full rounded-lg bg-rose-100 object-cover group-hover:opacity-80 lg:aspect-auto lg:h-80"
+          />
+        </Link>
       </div>
       <div className="mt-4">
         <h3 className="text-sm text-rose-600 font-medium">
-          {/* Remove Link to prevent navigation */}
-          <span>{product.name}</span>
+          <Link to={`/product/${product.id}`}>
+            {product.name}
+          </Link>
         </h3>
         <p className="mt-1 text-sm text-rose-400">{product.color}</p>
         <div className="mt-2 flex items-center justify-between">
@@ -65,7 +67,7 @@ const ProductsPage = () => {
         </div>
         <button
           onClick={() => handleAddToCart(product)}
-          className="mt-3 w-full bg-rose-500 text-white py-2 rounded-md hover:bg-rose-600 transition"
+          className="mt-3 w-full bg-rose-500 text-white py-2 rounded-md hover:bg-rose-600 transition "
         >
           Add to Cart
         </button>

@@ -3,16 +3,22 @@ import { Link, useNavigate } from "react-router-dom";
 import cart from '../../assets/Images/cart_icon.png';
 import user from '../../assets/Images/user_icon.png';
 import CartSideBar from "./CartSideBar";
+import UserProfileSidebar from "./UserProfilePage";
 
 const Navbar = () => {
+
+
+  const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+
   const navigateLogin = useNavigate();
   const gotoLogin = () => {
     navigateLogin('/login');
   };
 
-  const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleCategoryClick = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -33,28 +39,33 @@ const Navbar = () => {
         </Link>
 
         {/* Buttons on right */}
-        <div className="flex items-center space-x-4 md:order-2">
+        <div className="flex items-center space-x-4 md:order-2 text-sm md:text-base">
           <Link
             to="/login"
             onClick={gotoLogin}
-            className="text-white bg-rose-700 hover:text-white hover:bg-rose-600 focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm px-4 py-2 text-center"
+            className="text-white bg-rose-700 hover:bg-rose-600 focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-md px-3 py-1.5 sm:px-4 sm:py-2"
           >
             Login
           </Link>
+
           <button
             onClick={() => setIsCartOpen(!isCartOpen)}
-            className="relative w-8 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm flex items-center"
+            className="relative w-6 sm:w-8 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg flex items-center"
           >
-            <img src={cart} alt="Cart Icon" />
+            <img src={cart} alt="Cart Icon" className="w-full" />
           </button>
+
           {isCartOpen && <CartSideBar closeCart={() => setIsCartOpen(!isCartOpen)} />}
-          <Link
-            to="/user"
-            className="relative w-8 p-1 pb-0 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg text-sm flex items-center"
-          >
-            <img src={user} alt="User Icon" />
-          </Link>
+
+          <button
+          onClick={() => setIsProfileOpen(!isProfileOpen)}
+          className="relative w-6 sm:w-8 p-1 pb-0 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg flex items-center"
+        >
+          <img src={user} alt="User Icon" />
+        </button>
+         {isProfileOpen && <UserProfileSidebar closeProfile={() => setIsProfileOpen(false)} />}
         </div>
+
 
         {/* Hamburger Menu */}
         <button

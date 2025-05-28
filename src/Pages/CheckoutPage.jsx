@@ -9,7 +9,11 @@ const Checkout = () => {
     };
 
     return (
+
         <div className="bg-pink-50 min-h-screen p-6 font-sans">
+            <Link to="/home" className="text-rose-600 hover:text-rose-500 mb-6 inline-block">
+          ← Back to Products
+        </Link>
             <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
                 {/* Left Side - Checkout Form */}
                 <div className="bg-white rounded-2xl shadow-md p-6">
