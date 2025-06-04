@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import CartContext from "../CartContext";
+import QrCode from "../assets/Images/qrCode.jpg"
 
 const Checkout = () => {
     const { cart, removeFromCart } = useContext(CartContext);
@@ -65,7 +66,7 @@ const Checkout = () => {
                         <div className="flex flex-col gap-4">
                             {/* Placeholder QR Code */}
                             <img
-                                src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg"
+                                src={QrCode}
                                 alt="QR Code for Payment"
                                 className="w-full max-w-xs mx-auto rounded-lg"
                             />

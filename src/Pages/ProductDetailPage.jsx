@@ -1,5 +1,5 @@
 import { useParams, useLocation, Link } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import CartContext from '../CartContext';
 import Navbar from '../Components/HomePage/NavHomePage';
 
@@ -7,6 +7,7 @@ const ProductDetailPage = () => {
   const { id } = useParams(); // Get the product ID from the URL
   const { state } = useLocation(); // Get product data passed via Link state
   const { addToCart } = useContext(CartContext);
+   const [showMessage, setShowMessage] = useState(false);
 
   // Static product data (temporary until backend integration)
   const products = {
@@ -41,12 +42,18 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     addToCart(product);
-    alert(`${product.name} added to cart!`);
+    setShowMessage(true); // Show the message
+    setTimeout(() => setShowMessage(false), 2000); 
   };
 
   return (
     <>
     <Navbar/>
+    {showMessage && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black px-4 py-2 z-1 rounded-md shadow-lg transition-opacity duration-300">
+          Added to cart successfully!
+        </div>
+      )}
     <div className="bg-pink-50 min-h-screen pt-16">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <Link to="/home" className="text-rose-600 hover:text-rose-500 mb-6 inline-block">

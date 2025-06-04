@@ -1,10 +1,9 @@
-// src/Components/HomePage/CartSideBar.jsx
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import CartContext from '../../CartContext';
 
 const CartSideBar = ({ closeCart }) => {
-  const { cart, removeFromCart } = useContext(CartContext);
+  const { cart, removeFromCart, decreaseQuantity, increaseQuantity } = useContext(CartContext);
 
   // Calculate subtotal
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -64,7 +63,23 @@ const CartSideBar = ({ closeCart }) => {
                                   <p className="mt-1 text-sm text-rose-500">{item.color}</p>
                                 </div>
                                 <div className="flex flex-1 items-end justify-between text-sm">
-                                  <p className="text-rose-500">Qty {item.quantity}</p>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => decreaseQuantity(item.id)}
+                                      className="font-medium text-rose-600 hover:text-rose-500 cursor-pointer"
+                                    >
+                                      -
+                                    </button>
+                                    <p className="text-rose-500">Qty {item.quantity}</p>
+                                    <button
+                                      type="button"
+                                      onClick={() => increaseQuantity(item.id)}
+                                      className="font-medium text-rose-600 hover:text-rose-500 cursor-pointer"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
                                   <div className="flex">
                                     <button
                                       type="button"
