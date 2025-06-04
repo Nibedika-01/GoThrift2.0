@@ -4,13 +4,13 @@ import CartContext from '../../CartContext';
 import NavHome from './NavHomePage';
 
 const ProductsPage = () => {
-
   const { addToCart } = useContext(CartContext);
   const [recentSlideIndex, setRecentSlideIndex] = useState(0);
   const [topsSlideIndex, setTopsSlideIndex] = useState(0);
   const [bottomsSlideIndex, setBottomsSlideIndex] = useState(0);
   const [dressesSlideIndex, setDressesSlideIndex] = useState(0);
   const [accessoriesSlideIndex, setAccessoriesSlideIndex] = useState(0);
+  const [showMessage, setShowMessage] = useState(false); // New state for message visibility
 
   const products = {
     recent: [
@@ -41,6 +41,8 @@ const ProductsPage = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product);
+    setShowMessage(true); // Show the message
+    setTimeout(() => setShowMessage(false), 2000); // Hide after 2 seconds
   };
 
   const ProductCard = ({ product }) => (
@@ -67,7 +69,7 @@ const ProductsPage = () => {
         </div>
         <button
           onClick={() => handleAddToCart(product)}
-          className="mt-3 w-full bg-rose-500 text-white py-2 rounded-md hover:bg-rose-600 transition "
+          className="mt-3 w-full bg-rose-500 text-white py-2 rounded-md hover:bg-rose-600 transition"
         >
           Add to Cart
         </button>
@@ -120,6 +122,12 @@ const ProductsPage = () => {
   return (
     <div className="bg-pink-50 min-h-screen pt-16">
       <NavHome />
+      {/* Message Display */}
+      {showMessage && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black px-4 py-2 z-1 rounded-md shadow-lg transition-opacity duration-300">
+          Added to cart successfully!
+        </div>
+      )}
       <div id="recent" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="text-2xl font-bold tracking-tight text-rose-700">Recently Added Collection</h2>
         <ProductSlider
