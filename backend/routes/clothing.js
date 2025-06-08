@@ -1,11 +1,11 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const Clothing = require('../models/Clothing');
 
 const router = express.Router();
 
-// Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -29,8 +29,20 @@ const upload = multer({
   },
 });
 
-// POST route to add a new clothing item
-router.post('/clothing', upload.single('image'), async (req, res) => {
+const checkAdmin = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  try {
+    jwt.verify(token, 'secret_key');
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
+router.post('/clothing', checkAdmin, upload.single('image'), async (req, res) => {
   try {
     const { name, category, color, price, sizes } = req.body;
     if (!req.file) {
@@ -41,7 +53,7 @@ router.post('/clothing', upload.single('image'), async (req, res) => {
       category,
       color,
       price: parseFloat(price),
-      sizes: sizes.split(',').map((size) => size.trim()), // Convert comma-separated string to array
+      sizes: sizes.split(',').map((size) => size.trim()),
       image: `/uploads/${req.file.filename}`,
     });
     await clothing.save();
