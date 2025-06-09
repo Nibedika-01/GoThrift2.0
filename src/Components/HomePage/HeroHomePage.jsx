@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import CartContext from '../../CartContext';
 import NavHome from './NavHomePage';
@@ -11,33 +11,43 @@ const ProductsPage = () => {
   const [dressesSlideIndex, setDressesSlideIndex] = useState(0);
   const [accessoriesSlideIndex, setAccessoriesSlideIndex] = useState(0);
   const [showMessage, setShowMessage] = useState(false); // New state for message visibility
+  const [products, setProducts] = useState({
+    recent: [],
+    tops: [],
+    bottoms: [],
+    dresses: [],
+    accessories: [],
+  });
 
-  const products = {
-    recent: [
-      { id: 1, name: 'Vintage Graphic Tee', category: 'Tops', color: 'Black', price: 25, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-      { id: 2, name: 'Denim Jacket', category: 'Tops', color: 'Blue', price: 45, sizes: ['M', 'L', 'XL'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
-      { id: 3, name: 'High-Waisted Jeans', category: 'Bottoms', color: 'Dark Wash', price: 35, sizes: ['28', '30', '32'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
-      { id: 4, name: 'Floral Maxi Dress', category: 'Dresses', color: 'Multicolor', price: 50, sizes: ['S', 'M'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg' },
-      { id: 10, name: 'Scarf', category: 'Accessories', color: 'Red', price: 12, sizes: ['One Size'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-    ],
-    tops: [
-      { id: 5, name: 'Cotton Blouse', color: 'White', price: 20, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-      { id: 6, name: 'Sweatshirt', color: 'Gray', price: 30, sizes: ['M', 'L', 'XL'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
-      { id: 11, name: 'Flannel Shirt', color: 'Plaid', price: 28, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
-    ],
-    bottoms: [
-      { id: 7, name: 'Chinos', color: 'Khaki', price: 28, sizes: ['30', '32', '34'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
-      { id: 12, name: 'Cargo Pants', color: 'Green', price: 32, sizes: ['30', '32'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-    ],
-    dresses: [
-      { id: 8, name: 'Summer Sundress', color: 'Yellow', price: 40, sizes: ['S', 'M'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg' },
-      { id: 13, name: 'Cocktail Dress', color: 'Black', price: 55, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
-    ],
-    accessories: [
-      { id: 9, name: 'Leather Belt', color: 'Brown', price: 15, sizes: ['M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-      { id: 14, name: 'Sunglasses', color: 'Black', price: 18, sizes: ['One Size'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
-    ],
-  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/clothing');
+        const data = await response.json();
+        const mappedData = data.map((item) => ({
+          id: item._id,
+          name: item.name,
+          category: item.category,
+          color: item.color,
+          price: item.price,
+          sizes: item.sizes,
+          image: `http://localhost:5000${item.image}`,
+        }));
+        console.log('Mapped data:', mappedData);
+        setProducts({
+          recent : mappedData.slice(0, 5), //last 5 items for recent
+          tops: mappedData.filter((item) => item.category === 'Tops'),
+          bottoms: mappedData.filter((item) => item.category === 'Bottoms'),
+          dresses: mappedData.filter((item) => item.category === 'Dresses'),
+          accessories: mappedData.filter((item) => item.category === 'Accessories'),
+        });
+      }
+      catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const handleAddToCart = (product) => {
     addToCart(product);
@@ -94,6 +104,10 @@ const ProductsPage = () => {
 
     return (
       <div className="relative">
+      {products.length === 0 ? (
+        <p className="mt-6 text-rose-500 text-center">No items available in this category</p>
+      ):(
+        <>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
@@ -115,6 +129,9 @@ const ProductsPage = () => {
             Next
           </button>
         </div>
+        </>
+      )
+      }
       </div>
     );
   };
@@ -124,7 +141,7 @@ const ProductsPage = () => {
       <NavHome />
       {/* Message Display */}
       {showMessage && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black px-4 py-2 z-1 rounded-md shadow-lg transition-opacity duration-300">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black px-4 py-2 z-50 rounded-md shadow-lg transition-opacity duration-300">
           Added to cart successfully!
         </div>
       )}

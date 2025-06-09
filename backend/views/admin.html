@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Add Clothing</title>
+  <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-pink-50 min-h-screen p-6 font-sans">
   <div class="max-w-5xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-rose-700">Admin Dashboard - Add Clothing</h1>
+      <h1 class="text-3xl font-bold text-rose-700">Admin Dashboard</h1>
       <button
         onclick="localStorage.removeItem('adminToken'); window.location.href='/admin_login.html'"
         class="bg-rose-600 text-white px-4 py-2 rounded-md hover:bg-rose-500"
@@ -17,88 +17,27 @@
         Logout
       </button>
     </div>
-    <div class="bg-white rounded-2xl shadow-md p-6">
-      <form id="clothingForm" enctype="multipart/form-data" class="space-y-6">
-        <div>
-          <label for="name" class="block text-lg text-rose-600 font-medium mb-1">Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            class="w-full p-3 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300"
-            placeholder="Vintage Graphic Tee"
-          />
-        </div>
-        <div>
-          <label for="category" class="block text-lg text-rose-600 font-medium mb-1">Category</label>
-          <select
-            id="category"
-            name="category"
-            required
-            class="w-full p-3 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300"
-          >
-            <option value="">Select a category</option>
-            <option value="Tops">Tops</option>
-            <option value="Bottoms">Bottoms</option>
-            <option value="Dresses">Dresses</option>
-            <option value="Accessories">Accessories</option>
-          </select>
-        </div>
-        <div>
-          <label for="color" class="block text-lg text-rose-600 font-medium mb-1">Color</label>
-          <input
-            type="text"
-            id="color"
-            name="color"
-            required
-            class="w-full p-3 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300"
-            placeholder="Black"
-          />
-        </div>
-        <div>
-          <label for="price" class="block text-lg text-rose-600 font-medium mb-1">Price (Rs.)</label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            required
-            min="0"
-            step="0.01"
-            class="w-full p-3 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300"
-            placeholder="25.00"
-          />
-        </div>
-        <div>
-          <label for="sizes" class="block text-lg text-rose-600 font-medium mb-1">Sizes (comma-separated)</label>
-          <input
-            type="text"
-            id="sizes"
-            name="sizes"
-            required
-            class="w-full p-3 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300"
-            placeholder="S,M,L"
-          />
-        </div>
-        <div>
-          <label for="image" class="block text-lg text-rose-600 font-medium mb-1">Image</label>
-          <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/*"
-            required
-            class="p-3 border border-rose-200 rounded-lg w-full"
-          />
-        </div>
-        <button
-          type="submit"
-          class="w-full bg-rose-700 text-white font-semibold py-3 rounded-lg hover:bg-rose-600 transition"
-        >
-          Add Clothing
-        </button>
-      </form>
-      <div id="message" class="hidden mt-4 text-center"></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Add Items Card -->
+      <a href="/add_clothes.html" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer">
+        <h2 class="text-xl font-semibold text-rose-700 mb-2">Add Items</h2>
+        <p class="text-rose-500">Upload new clothing items to the store</p>
+      </a>
+      <!-- View Orders Card -->
+      <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
+        <h2 class="text-xl font-semibold text-rose-700 mb-2">View Orders</h2>
+        <p class="text-rose-500">Check customer orders and statuses</p>
+      </a>
+      <!-- View Inventory Card -->
+      <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
+        <h2 class="text-xl font-semibold text-rose-700 mb-2">View Inventory</h2>
+        <p class="text-rose-500">Manage existing clothing inventory</p>
+      </a>
+      <!-- Manage Categories Card -->
+      <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
+        <h2 class="text-xl font-semibold text-rose-700 mb-2">Manage Categories</h2>
+        <p class="text-rose-500">Add or edit product categories</p>
+      </a>
     </div>
   </div>
   <script>
@@ -106,40 +45,6 @@
     if (!localStorage.getItem('adminToken')) {
       window.location.href = '/admin_login.html';
     }
-
-    document.getElementById('clothingForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const messageDiv = document.getElementById('message');
-
-      try {
-        const response = await fetch('http://localhost:5000/api/clothing', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` },
-          body: formData,
-        });
-        const data = await response.json();
-        if (response.ok) {
-          messageDiv.classList.remove('hidden', 'text-red-500');
-          messageDiv.classList.add('text-green-500');
-          messageDiv.textContent = 'Clothing item added successfully!';
-          form.reset();
-          setTimeout(() => {
-            messageDiv.classList.add('hidden');
-            messageDiv.textContent = '';
-          }, 2000);
-        } else {
-          messageDiv.classList.remove('hidden', 'text-green-500');
-          messageDiv.classList.add('text-red-500');
-          messageDiv.textContent = data.message || 'Error adding clothing item';
-        }
-      } catch (error) {
-        messageDiv.classList.remove('hidden', 'text-green-500');
-        messageDiv.classList.add('text-red-500');
-        messageDiv.textContent = 'Error: Could not connect to server';
-      }
-    });
   </script>
-</body.Bytes>
+</body>
 </html>

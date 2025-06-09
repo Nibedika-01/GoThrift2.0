@@ -63,4 +63,14 @@ router.post('/clothing', checkAdmin, upload.single('image'), async (req, res) =>
   }
 });
 
+router.get('/clothing', async(req, res) => {
+  try {
+    const clothes = await Clothing.find().sort({ createdAt: -1});
+    res.json(clothes);
+  }
+  catch (error){
+    res.status(500).json({ message: error.message});
+  }
+});
+
 module.exports = router;
