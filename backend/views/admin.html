@@ -8,43 +8,124 @@
 </head>
 <body class="bg-pink-50 min-h-screen p-6 font-sans">
   <div class="max-w-5xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-rose-700">Admin Dashboard</h1>
-      <button
-        onclick="localStorage.removeItem('adminToken'); window.location.href='/admin_login.html'"
-        class="bg-rose-600 text-white px-4 py-2 rounded-md hover:bg-rose-500"
-      >
-        Logout
-      </button>
+    <div id="dashboard" class="hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-rose-700">Admin Dashboard</h1>
+        <button
+          onclick="localStorage.removeItem('adminToken'); document.getElementById('dashboard').classList.add('hidden'); document.getElementById('login').classList.remove('hidden');"
+          class="bg-rose-600 text-white px-4 py-2 rounded-md hover:bg-rose-500"
+        >
+          Logout
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Add Items Card -->
+        <a href="/add_clothes.html" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer">
+          <h2 class="text-xl font-semibold text-rose-700 mb-2">Add Items</h2>
+          <p class="text-rose-500">Upload new clothing items to the store</p>
+        </a>
+        <!-- View Orders Card -->
+        <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
+          <h2 class="text-xl font-semibold text-rose-700 mb-2">View Orders</h2>
+          <p class="text-rose-500">Check customer orders and statuses</p>
+        </a>
+        <!-- View Inventory Card -->
+        <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
+          <h2 class="text-xl font-semibold text-rose-700 mb-2">View Inventory</h2>
+          <p class="text-rose-500">Manage existing clothing inventory</p>
+        </a>
+        <!-- Manage Categories Card -->
+        <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
+          <h2 class="text-xl font-semibold text-rose-700 mb-2">Manage Categories</h2>
+          <p class="text-rose-500">Add or edit product categories</p>
+        </a>
+      </div>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Add Items Card -->
-      <a href="/add_clothes.html" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-        <h2 class="text-xl font-semibold text-rose-700 mb-2">Add Items</h2>
-        <p class="text-rose-500">Upload new clothing items to the store</p>
-      </a>
-      <!-- View Orders Card -->
-      <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
-        <h2 class="text-xl font-semibold text-rose-700 mb-2">View Orders</h2>
-        <p class="text-rose-500">Check customer orders and statuses</p>
-      </a>
-      <!-- View Inventory Card -->
-      <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
-        <h2 class="text-xl font-semibold text-rose-700 mb-2">View Inventory</h2>
-        <p class="text-rose-500">Manage existing clothing inventory</p>
-      </a>
-      <!-- Manage Categories Card -->
-      <a href="#" class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer opacity-50 pointer-events-none">
-        <h2 class="text-xl font-semibold text-rose-700 mb-2">Manage Categories</h2>
-        <p class="text-rose-500">Add or edit product categories</p>
-      </a>
+    <div id="login" class="flex items-center justify-center min-h-[calc(100vh-12rem)]">
+      <div class="bg-white rounded-2xl shadow-md p-8 max-w-md w-full transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+        <h2 class="text-2xl font-bold text-rose-700 mb-6 text-center">Admin Login</h2>
+        <form id="loginForm" class="space-y-6">
+          <div>
+            <label for="username" class="block text-lg text-rose-600 font-medium mb-1">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              class="w-full p-3 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300"
+              placeholder="Enter username"
+            />
+          </div>
+          <div>
+            <label for="password" class="block text-lg text-rose-600 font-medium mb-1">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              class="w-full p-3 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300"
+              placeholder="Enter password"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-rose-700 text-white font-semibold py-3 rounded-lg hover:bg-rose-600 transition"
+          >
+            Login
+          </button>
+        </form>
+        <div id="message" class="hidden mt-4 text-center text-red-500"></div>
+      </div>
     </div>
   </div>
   <script>
+    const dashboard = document.getElementById('dashboard');
+    const login = document.getElementById('login');
+    const messageDiv = document.getElementById('message');
+
     // Check if admin is logged in
-    if (!localStorage.getItem('adminToken')) {
-      window.location.href = '/admin_login.html';
+    if (localStorage.getItem('adminToken')) {
+      login.classList.add('hidden');
+      dashboard.classList.remove('hidden');
     }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            username: formData.get('username'),
+            password: formData.get('password'),
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem('adminToken', data.token);
+          login.classList.add('hidden');
+          dashboard.classList.remove('hidden');
+          messageDiv.classList.add('hidden');
+        } else {
+          messageDiv.classList.remove('hidden');
+          messageDiv.textContent = data.message || 'Invalid credentials';
+          setTimeout(() => {
+            messageDiv.classList.add('hidden');
+            messageDiv.textContent = '';
+          }, 2000);
+        }
+      } catch (error) {
+        messageDiv.classList.remove('hidden');
+        messageDiv.textContent = 'Error: Could not connect to server';
+        setTimeout(() => {
+          messageDiv.classList.add('hidden');
+          messageDiv.textContent = '';
+        }, 2000);
+      }
+    });
   </script>
 </body>
 </html>

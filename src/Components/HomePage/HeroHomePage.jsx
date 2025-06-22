@@ -24,6 +24,7 @@ const ProductsPage = () => {
       try {
         const response = await fetch('http://localhost:5000/api/clothing');
         const data = await response.json();
+        console.log(data)
         const mappedData = data.map((item) => ({
           id: item._id,
           name: item.name,
