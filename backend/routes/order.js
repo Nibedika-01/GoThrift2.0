@@ -23,7 +23,7 @@ const authMiddleware = (req, res, next) => {
 //POST: create order from cart
 router.post('/order', authMiddleware, async (req, res) => {
     try{
-        const {sessionId} = req.body;
+        const {sessionId, paymentMethod, shippingInfo} = req.body;
         const cart = await Cart.findOne({sessionId}).populate('items.product');
         if( !cart || cart.items.length === 0){
             return res.status(400).json({ message: 'Cart is empty' });

@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema({
     paymentProof: { type: String },
     status: {
         type: String,
-        enum: ['pending', 'processing', 'shipped', 'delivered'],
+        enum: ['pending', 'processing', 'shipped', 'delivered', 'cod', 'awaiting_payment', 'online'],
         default: 'pending',
     },
     createdAt: {

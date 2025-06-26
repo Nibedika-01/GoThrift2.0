@@ -25,6 +25,7 @@ const Checkout = () => {
 
     //Redirects to login if not authenticated
     useEffect(() => {
+      console.log(user);
         if (!user) {
             navigate('/login', { state: { from: location.pathname } });
         }
@@ -61,11 +62,12 @@ const Checkout = () => {
             const response = await fetch('http://localhost:5000/api/order', {
                 method: 'POST',
                 headers: {
-                    'Context-Type': 'application/json',
+                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     sessionId,
+                    userId: user.userId,
                     paymentMethod,
                     shippingInfo: formData,
                     paymentProof: paymentProof ? paymentProof.name : null,
