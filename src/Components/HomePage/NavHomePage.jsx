@@ -1,23 +1,30 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import cart from '../../assets/Images/cart_icon.png';
-import user from '../../assets/Images/user_icon.png';
+import userPicture from '../../assets/Images/user_icon.png';
 import CartSideBar from "./CartSideBar";
-import UserProfileSidebar from "./UserProfilePage";
+import UserProfileSidebar from "./ProfileSidebar";
+import AuthContext from "../../AuthContext";
 
 const Navbar = () => {
 
-
+  const { user, logout, loading } = useContext(AuthContext)
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-
   const navigateLogin = useNavigate();
-  const gotoLogin = () => {
-    navigateLogin('/login');
-  };
+
+  const handleAuthAction = () => {
+    if (user) {
+      logout();
+    } else {
+      navigateLogin("/login")
+    }
+  }
+  if (loading) {
+    return <div>Loading.....</div>
+  }
 
 
   const handleCategoryClick = (sectionId) => {
@@ -40,13 +47,12 @@ const Navbar = () => {
 
         {/* Buttons on right */}
         <div className="flex items-center space-x-4 md:order-2 text-sm md:text-base">
-          <Link
-            to="/login"
-            onClick={gotoLogin}
+          <button
+            onClick={handleAuthAction}
             className="text-white bg-rose-700 hover:bg-rose-600 focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-md px-3 py-1.5 sm:px-4 sm:py-2"
           >
-            Login
-          </Link>
+            {user ? "Logout" : "Login"}
+          </button>
 
           <button
             onClick={() => setIsCartOpen(!isCartOpen)}
@@ -58,12 +64,12 @@ const Navbar = () => {
           {isCartOpen && <CartSideBar closeCart={() => setIsCartOpen(!isCartOpen)} />}
 
           <button
-          onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="relative w-6 sm:w-8 p-1 pb-0 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg flex items-center"
-        >
-          <img src={user} alt="User Icon" />
-        </button>
-         {isProfileOpen && <UserProfileSidebar closeProfile={() => setIsProfileOpen(false)} />}
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="relative w-6 sm:w-8 p-1 pb-0 cursor-pointer focus:ring-4 focus:outline-none focus:ring-rose-200 font-medium rounded-lg flex items-center"
+          >
+            <img src={userPicture} alt="User Icon" />
+          </button>
+          {isProfileOpen && <UserProfileSidebar closeProfile={() => setIsProfileOpen(false)} />}
         </div>
 
 

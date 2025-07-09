@@ -7,7 +7,7 @@ import CartSideBar from './Components/HomePage/CartSideBar';
 import LoginHomePage from './Pages/LoginPage';
 import Signup from './Pages/SignupPage';
 import ProductDetailPage from './Pages/ProductDetailPage'
-import UserProfilePage from './Components/HomePage/UserProfilePage'
+import ProfileSidebar from './Components/HomePage/ProfileSidebar'
 
 function App() {
   return (
@@ -21,7 +21,7 @@ function App() {
           <Route path="/cart" element={<CartSideBar />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path='/product/:id' element={<ProductDetailPage />} />
-          <Route path='/user' element={<UserProfilePage/>}/>
+          <Route path='/user' element={<ProfileSidebar/>}/>
         </Routes>
       </BrowserRouter>
     </CartProvider>
