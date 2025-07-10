@@ -15,12 +15,14 @@ export const CartProvider = ({ children }) => {
       localStorage.setItem('sessionId', sid);
     }
     setSessionId(sid);
-
-    //fetch cart on load
-    if(sid){
-      fetchCart(sid);
-    }
   }, []);
+
+// Fetch cart when sessionId is set
+  useEffect(() => {
+    if (sessionId) {
+      fetchCart(sessionId);
+    }
+  }, [sessionId]);
 
   const fetchCart = async(sid) => {
     try{
@@ -80,7 +82,7 @@ export const CartProvider = ({ children }) => {
     try{
       const response = await fetch(`http://localhost:5000/api/cart/remove`, {
         method: 'POST',
-        headers: { 'Context-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify({ sessionId, productId })
       });
       if(response.ok){

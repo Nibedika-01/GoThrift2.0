@@ -58,7 +58,7 @@ const CartSideBar = ({ closeCart }) => {
                                 <div>
                                   <div className="flex justify-between text-base font-medium text-rose-700">
                                     <h3>{item.name}</h3>
-                                    <p className="ml-4">${item.price}</p>
+                                    <p className="ml-4">Rs. {item.price}</p>
                                   </div>
                                   <p className="mt-1 text-sm text-rose-500">{item.color}</p>
                                 </div>
@@ -103,7 +103,7 @@ const CartSideBar = ({ closeCart }) => {
                 <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
                   <div className="flex justify-between text-base font-medium text-rose-700">
                     <p>Subtotal</p>
-                    <p>${subtotal.toFixed(2)}</p>
+                    <p>Rs. {subtotal}</p>
                   </div>
                   <p className="mt-0.5 text-sm text-rose-500">Shipping is calculated at checkout.</p>
                   <div className="mt-6">

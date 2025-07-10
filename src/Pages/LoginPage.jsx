@@ -14,7 +14,7 @@ const LoginHomePage = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || "/";
+  const from = location.state?.from || "/home";
 
   const handleSubmit = async (e) => {
     e.preventDefault();

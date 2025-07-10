@@ -7,28 +7,34 @@ const User = require('../models/User');
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ message: 'No token provided'});
+    return res.status(401).json({ message: 'No token provided' });
   }
-  try{
+  try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.userId; //set userId from token
     next();
-  }catch(error){
-    return res.status(401).json({ message: 'Invalid or expired token'})
+  } catch (error) {
+    console.error('JWT verify failed:', error);
+    return res.status(401).json({ message: 'Invalid or expired token' })
   }
 }
 
 router.get('/user', authMiddleware, async (req, res) => {
-  try{
+  try {
     const user = await User.findById(req.userId).select('displayName email phoneNumber');
-    if (!user){
-      return res.status(404).json({ message: 'User not found'});
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    res.json({ user: { displayName: user.displayName || user.email.split('@')[0],
-      email: user.email, phoneNumber: userphoneNumber
-    }}); //otherwise sends user data
-  }catch(error){
-    res.status(500).json({ message: 'Server error'});
+    res.json({
+      user: {
+        displayName: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        phoneNumber: user.phoneNumber
+      }
+    }); //otherwise sends user data
+  } catch (error) {
+    console.error('Error in /user route:', error)
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -43,10 +49,21 @@ router.post('/user/register', async (req, res) => {
       return res.status(400).json({ message: 'Email already registered' });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ email, password:hashedPassword, displayName: email.split('@')[0], phoneNumber });
+    const user = new User({
+      email, password: hashedPassword,
+      displayName: email.split('@')[0],
+      phoneNumber
+    });
     await user.save();
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(201).json({ token, user: {displayName: user.displayName || user.email.split('@')[0], email: user.email, phoneNumber: user.phoneNumber} });
+    res.status(201).json({
+      token,
+      user: {
+        displayName: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        phoneNumber: user.phoneNumber
+      }
+    });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ message: error.message });
@@ -66,14 +83,17 @@ router.post('/user/login', async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({
       token,
-      user: { displayName: user.displayName || user.email.split('@')[0], email: user.email, phoneNumber: user.phoneNumber }
+      user: {
+        displayName: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        phoneNumber: user.phoneNumber
+      }
     });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: error.message });
   }
 });
-
 
 
 module.exports = router;

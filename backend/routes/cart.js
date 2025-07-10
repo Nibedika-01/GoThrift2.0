@@ -52,6 +52,7 @@ router.post('/cart/remove', async(req, res) => {
 // GET: Fetch cart by sessionId
 router.get('/cart/:sessionId', async (req, res) => {
   try {
+    console.log('Requested sessionId:', req.params.sessionId);
     const { sessionId } = req.params;
     const cart = await Cart.findOne({ sessionId }).populate('items.product');
     if (!cart) {

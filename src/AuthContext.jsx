@@ -9,33 +9,37 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (token) {
-        try {
-          const response = await fetch("http://localhost:5000/api/user", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-          if (!response.ok) {
-            throw new Error("Failed to fetch user");
-          }
-          const data = await response.json();
-          setUser(data.user || data); // Handle varying backend response formats
-        } catch (error) {
-          setToken(null);
-          setUser(null);
-          localStorage.removeItem("userToken");
-        } finally {
-          setLoading(false);
+      if(!token){
+        setLoading(false);
+        return;
+      }
+
+      try{
+        const response = await fetch("http://localhost:5000/api/user", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        
+        if(!response.ok){
+          throw new Error("Failed to fetch user");
         }
-      } else {
+
+        const data = await response.json();
+        setUser(data.user || data);
+      }catch(error){
+        console.error("Fetch user Failed:"+ error);
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("userToken");
+      }finally {
         setLoading(false);
       }
     };
     fetchUser();
-  }, []); // Run only on mount, token is checked within
+  }, [token]); // Run only on mount, token is checked within
 
   const login = async (email, password) => {
     try {
@@ -65,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, token, setToken, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

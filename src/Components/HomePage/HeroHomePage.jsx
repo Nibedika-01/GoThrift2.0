@@ -24,7 +24,6 @@ const ProductsPage = () => {
       try {
         const response = await fetch('http://localhost:5000/api/clothing');
         const data = await response.json();
-        console.log(data)
         const mappedData = data.map((item) => ({
           id: item._id,
           name: item.name,
@@ -34,7 +33,6 @@ const ProductsPage = () => {
           sizes: item.sizes,
           image: `http://localhost:5000${item.image}`,
         }));
-        console.log('Mapped data:', mappedData);
         setProducts({
           recent : mappedData.slice(0, 5), //last 5 items for recent
           tops: mappedData.filter((item) => item.category === 'Tops'),

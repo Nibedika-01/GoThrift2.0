@@ -8,9 +8,6 @@ const UserProfileSidebar = ({ closeProfile }) => {
   const navigate = useNavigate();
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
 
-  useEffect(() => {
-    console.log('UserProfile user state:', user);
-  }, [user])
 
   //function to derive intials from username
   const getInitials = (name) => {
