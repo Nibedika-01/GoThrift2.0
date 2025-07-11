@@ -98,7 +98,7 @@ const UserProfileSidebar = ({ closeProfile }) => {
                       >
                         Logout
                       </button>
-                      {isOrderHistoryOpen && <OrderHistory closeOrderHistory={() => setIsOrderHistoryOpen(false)} />}
+                      {isOrderHistoryOpen && <OrderHistory closeOrderHistory={() => setIsOrderHistoryOpen(false)} userId={user?.id}  />}
                     </div>
                   </div>
                 )}

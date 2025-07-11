@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6,
     },
+    phoneNumber: {
+        type: String,
+        default: '',
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -24,15 +28,15 @@ const userSchema = new mongoose.Schema({
 });
 
 //Hash password before saving
-userSchema.pre('save', async function (next){
-    if(this.isModified('password')){ //avoid double hashing by veryfing if the pw is new or modified
+userSchema.pre('save', async function (next) {
+    if (this.isModified('password')) { //avoid double hashing by veryfing if the pw is new or modified
         this.password = await bcrypt.hash(this.password, 10); //hash code is created
     }
     next();
 });
 
 //Compare password
-userSchema.methods.comparePassword = async function(password){
+userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 

@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId; //set userId from token
+    req.userId = decoded.userId || decoded.id; //set userId from token
     next();
   } catch (error) {
     console.error('JWT verify failed:', error);
@@ -21,17 +21,18 @@ const authMiddleware = (req, res, next) => {
 
 router.get('/user', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('displayName email phoneNumber');
+    const userId = req.userId;
+    const user = await User.findById(userId).select('displayName email phoneNumber');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json({
-      user: {
-        displayName: user.displayName || user.email.split('@')[0],
-        email: user.email,
-        phoneNumber: user.phoneNumber
-      }
-    }); //otherwise sends user data
+    const responseData = {
+      id: user._id,
+      displayName: user.displayName || user.email.split('@')[0],
+      email: user.email,
+      phoneNumber: user.phoneNumber
+    };
+    res.json(responseData); //otherwise sends user data
   } catch (error) {
     console.error('Error in /user route:', error)
     res.status(500).json({ message: 'Server error' });
@@ -55,10 +56,15 @@ router.post('/user/register', async (req, res) => {
       phoneNumber
     });
     await user.save();
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({
+      userId: user._id
+    },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' });
     res.status(201).json({
       token,
       user: {
+        id: user._id,
         displayName: user.displayName || user.email.split('@')[0],
         email: user.email,
         phoneNumber: user.phoneNumber
@@ -80,10 +86,17 @@ router.post('/user/login', async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' });
     res.json({
       token,
       user: {
+        id: user._id,
         displayName: user.displayName || user.email.split('@')[0],
         email: user.email,
         phoneNumber: user.phoneNumber
