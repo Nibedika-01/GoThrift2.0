@@ -1,111 +1,158 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import AuthContext from '../AuthContext'
+import AuthContext from "../AuthContext";
 import { Link } from "react-router-dom";
 import CartContext from "../CartContext";
-import QrCode from "../assets/Images/qrCode.jpg"
+import axios from "axios";
+import { generateUniqueId } from "esewajs";
+
+// PaymentComponent integrated within Checkout
+const PaymentComponent = ({ amount, setAmount, handlePayment, onClose }) => {
+  return (
+    <div className="bg-white p-6 rounded-lg max-w-md w-full relative">
+      <h3 className="text-lg font-semibold text-rose-700 mb-4">eSewa Payment</h3>
+      <form onSubmit={handlePayment} className="flex flex-col gap-4">
+        <div className="flex flex-col">
+          <label htmlFor="amount" className="text-rose-600 font-medium mb-1">
+            Amount (Rs.):
+          </label>
+          <input
+            type="number"
+            id="amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            required
+            placeholder="Enter amount"
+            className="p-3 border border-rose-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+          />
+        </div>
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-rose-700 text-white rounded-md hover:bg-rose-600 transition"
+          >
+            Pay with eSewa
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
 const Checkout = () => {
+  const { user, token } = useContext(AuthContext);
+  const { cart, sessionId, removeFromCart } = useContext(CartContext);
+  const [paymentMethod, setPaymentMethod] = useState("online");
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
+  const [showCityError, setShowCityError] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+  });
+  const [amount, setAmount] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const { user, token } = useContext(AuthContext);
-    const { cart, sessionId, removeFromCart } = useContext(CartContext);
-    const [paymentMethod, setPaymentMethod] = useState("online");
-    const [showPaymentPopup, setShowPaymentPopup] = useState(false);
-    const [showCityError, setShowCityError] = useState(false);
-    const [formData, setFormData] = useState({
-        email: "",
-        firstName: "",
-        lastName: "",
-        address: "",
-        city: "",
-    });
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [paymentProof, setPaymentProof] = useState(null);
+  // Redirects to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate("/login", { state: { from: location.pathname } });
+    }
+  }, [user, navigate, location]);
 
-    //Redirects to login if not authenticated
-    useEffect(() => {
-      console.log(user);
-        if (!user) {
-            navigate('/login', { state: { from: location.pathname } });
+  const handlePaymentChange = (event) => {
+    setPaymentMethod(event.target.value);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+    if (!amount || parseFloat(amount) <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/initiate-payment",
+        {
+          amount,
+          productId: generateUniqueId(),
         }
-    }, [user, navigate, location]);
+      );
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error("Error initiating payment:", error);
+      alert("Error initiating payment. Please try again.");
+    }
+  };
 
-    const handlePaymentChange = (event) => {
-        setPaymentMethod(event.target.value);
-    };
+  const handlePlaceOrder = async () => {
+    if (cart.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handlePlaceOrder = async () => {
-        if (cart.length === 0) {
-            alert('Your cart is empty');
-            return;
+    if (paymentMethod === "cod") {
+      if (formData.city.toLowerCase() !== "hetauda") {
+        setShowCityError(true);
+        setTimeout(() => setShowCityError(false), 2000);
+        return;
+      }
+      try {
+        const response = await fetch("http://localhost:5000/api/order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            sessionId,
+            userId: user.userId,
+            paymentMethod,
+            shippingInfo: formData,
+          }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert("Order placed successfully");
+          navigate("/home");
+        } else {
+          alert(data.message || "Error placing order");
         }
+      } catch (error) {
+        alert("Could not connect to server");
+      }
+    } else if (paymentMethod === "online") {
+      setAmount(total.toFixed(2)); // Pre-fill amount with cart total
+      setShowPaymentPopup(true);
+    }
+  };
 
-        if (paymentMethod === "cod") {
-            if (formData.city.toLowerCase() !== "hetauda") {
-                setShowCityError(true);
-                setTimeout(() => setShowCityError(false), 2000);
-                return;
-            }
-            // Proceed with COD order (e.g., show success message)
-            console.log("Order placed with Cash on Delivery");
-        } else if (paymentMethod === "online") {
-            setShowPaymentPopup(true);
-        }
+  // Calculate subtotal
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * (item.quantity || 1),
+    0
+  );
+  const shipping = 150;
+  const total = subtotal + shipping;
 
-        try {
-            const response = await fetch('http://localhost:5000/api/order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    sessionId,
-                    userId: user.userId,
-                    paymentMethod,
-                    shippingInfo: formData,
-                    paymentProof: paymentProof ? paymentProof.name : null,
-                }),
-            });
-            const data = await response.json();
-            if (response.ok) {
-                alert('Order placed successfully');
-                setShowPaymentPopup(false);
-                navigate('/home');
-            } else {
-                alert(data.message || 'Error placing order');
-            }
-        } catch (error) {
-            alert('Could not connect to server');
-        }
-    };
+  if (!user) return null;
 
-
-    const handlePayNow = () => {
-        if (!paymentProof) {
-            alert('Please upload payment proof');
-            return;
-        }
-        handlePlaceOrder();
-        // Mock payment processing (replace with actual payment gateway logic)
-        console.log("Processing online payment");
-        setShowPaymentPopup(false);
-    };
-
-    // Calculate subtotal
-    const subtotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
-    const shipping = 150;
-    const total = subtotal + shipping;
-
-    if(!user) return null;
-
-      return (
+  return (
     <div className="bg-pink-50 min-h-screen p-6 font-sans">
       {/* City Error Message */}
       {showCityError && (
@@ -116,42 +163,18 @@ const Checkout = () => {
       {/* Payment Popup */}
       {showPaymentPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full relative">
-            <h3 className="text-lg font-semibold text-rose-700 mb-4">Complete Payment</h3>
-            <div className="flex flex-col gap-4">
-              <img
-                src={QrCode}
-                alt="QR Code for Payment"
-                className="w-full max-w-xs mx-auto rounded-lg"
-              />
-              <p className="text-sm text-rose-500 text-center">
-                Scan the QR code to complete your payment
-              </p>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setPaymentProof(e.target.files[0])}
-                className="p-3 border border-rose-200 rounded-lg w-full"
-              />
-            </div>
-            <div className="mt-6 flex justify-end gap-4">
-              <button
-                onClick={() => setShowPaymentPopup(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
-              >
-                Close
-              </button>
-              <button
-                onClick={handlePayNow}
-                className="px-4 py-2 bg-rose-700 text-white rounded-md hover:bg-rose-600 transition"
-              >
-                Pay Now
-              </button>
-            </div>
-          </div>
+          <PaymentComponent
+            amount={amount}
+            setAmount={setAmount}
+            handlePayment={handlePayment}
+            onClose={() => setShowPaymentPopup(false)}
+          />
         </div>
       )}
-      <Link to="/home" className="text-rose-600 hover:text-rose-500 mb-6 inline-block">
+      <Link
+        to="/home"
+        className="text-rose-600 hover:text-rose-500 mb-6 inline-block"
+      >
         ← Back to Products
       </Link>
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
@@ -159,7 +182,10 @@ const Checkout = () => {
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h2 className="text-2xl font-bold text-rose-700 mb-6">Checkout</h2>
           <div className="mb-6">
-            <label className="block text-lg text-rose-600 font-medium mb-1" htmlFor="email">
+            <label
+              className="block text-lg text-rose-600 font-medium mb-1"
+              htmlFor="email"
+            >
               Email Address
             </label>
             <input
@@ -174,7 +200,9 @@ const Checkout = () => {
             />
           </div>
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-rose-600 mb-4">Shipping Information</h3>
+            <h3 className="text-lg font-semibold text-rose-600 mb-4">
+              Shipping Information
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input
                 name="firstName"
@@ -211,7 +239,9 @@ const Checkout = () => {
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-rose-600 mb-4">Payment Method</h3>
+            <h3 className="text-lg font-semibold text-rose-600 mb-4">
+              Payment Method
+            </h3>
             <div className="flex flex-col gap-2 mb-4">
               <label className="flex items-center">
                 <input
@@ -248,7 +278,9 @@ const Checkout = () => {
           </button>
         </div>
         <div className="bg-white rounded-2xl shadow-md p-6">
-          <h3 className="text-2xl font-bold text-rose-700 mb-4">Order Summary</h3>
+          <h3 className="text-2xl font-bold text-rose-700 mb-4">
+            Order Summary
+          </h3>
           <div className="mt-8">
             <div className="flow-root">
               <ul role="list" className="-my-6 divide-y divide-gray-200">
@@ -264,18 +296,24 @@ const Checkout = () => {
                           className="size-full object-cover"
                         />
                       </div>
-                      <div className="ml-4 flex flex-1 flex-col">
+                      <div className="ml NavLink flex flex-1 flex-col">
                         <div>
                           <div className="flex justify-between text-base font-medium text-rose-700">
                             <h3>
-                              <Link to={`/product/${product.id}`}>{product.name}</Link>
+                              <Link to={`/product/${product.id}`}>
+                                {product.name}
+                              </Link>
                             </h3>
                             <p className="ml-4">Rs. {product.price}</p>
                           </div>
-                          <p className="mt-1 text-sm text-rose-500">{product.color}</p>
+                          <p className="mt-1 text-sm text-rose-500">
+                            {product.color}
+                          </p>
                         </div>
                         <div className="flex flex-1 items-end justify-between text-sm">
-                          <p className="text-rose-500">Qty {product.quantity || 1}</p>
+                          <p className="text-rose-500">
+                            Qty {product.quantity || 1}
+                          </p>
                           <div className="flex">
                             <button
                               type="button"
