@@ -9,6 +9,7 @@ const clothingRoutes = require('./routes/clothing');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/order');
 const userRoutes = require('./routes/user');
+const searchRoutes = require('./routes/search')
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use('/api', clothingRoutes);
 app.use('/api', cartRoutes);
 app.use('/api', userRoutes);
 app.use('/api', orderRoutes);
+app.use('/api', searchRoutes);
 app.use('/api/admin', adminRoutes);
 
 

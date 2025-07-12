@@ -1,9 +1,10 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import cart from '../../assets/Images/cart_icon.png';
 import userPicture from '../../assets/Images/user_icon.png';
 import CartSideBar from "./CartSideBar";
 import UserProfileSidebar from "./ProfileSidebar";
+import SearchModal from "./SearchModal";
 import AuthContext from "../../AuthContext";
 
 const Navbar = () => {
@@ -13,6 +14,9 @@ const Navbar = () => {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const navigateLogin = useNavigate();
 
   const handleAuthAction = () => {
@@ -90,6 +94,7 @@ const Navbar = () => {
         {/* Main Navigation Links */}
         <div className={`w-full md:block md:w-auto ${isMainMenuOpen ? 'flex' : 'hidden'}`} id="navbar-dropdown">
           <ul className="flex flex-col font-medium p-2 md:p-0 mt-4 border border-rose-100 rounded-lg bg-rose-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-rose-50">
+            {/* Category dropdown */}
             <li>
               <button
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
@@ -147,10 +152,32 @@ const Navbar = () => {
                 </div>
               )}
             </li>
+            {/* search button */}
+            <li>
+              <button
+                onClick={() => {
+                  setIsSearchOpen(true);
+
+                }}
+                className="flex items-center justify-center w-full py-2 px-3 text-rose-700 rounded-sm hover:bg-rose-100 md:hover:bg-transparent md:border-0 md:hover:text-rose-600 md:p-0 md:w-auto"
+              >
+                <svg className="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                </svg>
+                Search
+              </button>
+            </li>
           </ul>
         </div>
       </div>
-    </nav>
+
+      {/* Search modal */}
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        initialQuery={searchQuery}
+        onQueryChange={setSearchQuery}
+      />    </nav>
   );
 };
 
