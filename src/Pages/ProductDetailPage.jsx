@@ -1,92 +1,253 @@
-import { useParams, useLocation, Link } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import CartContext from '../CartContext';
-import Navbar from '../Components/HomePage/NavHomePage';
+import NavHome from '../Components/HomePage/NavHomePage';
+
 
 const ProductDetailPage = () => {
-  const { id } = useParams(); // Get the product ID from the URL
-  const { state } = useLocation(); // Get product data passed via Link state
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
-   const [showMessage, setShowMessage] = useState(false);
+  const [product, setProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [showMessage, setShowMessage] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Static product data (temporary until backend integration)
-  // const products = {
-  //   1: { id: 1, name: 'Vintage Graphic Tee', category: 'Tops', color: 'Black', price: 25, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-  //   2: { id: 2, name: 'Denim Jacket', category: 'Tops', color: 'Blue', price: 45, sizes: ['M', 'L', 'XL'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
-  //   3: { id: 3, name: 'High-Waisted Jeans', category: 'Bottoms', color: 'Dark Wash', price: 35, sizes: ['28', '30', '32'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
-  //   4: { id: 4, name: 'Floral Maxi Dress', category: 'Dresses', color: 'Multicolor', price: 50, sizes: ['S', 'M'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg' },
-  //   5: { id: 5, name: 'Cotton Blouse', color: 'White', price: 20, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-  //   6: { id: 6, name: 'Sweatshirt', color: 'Gray', price: 30, sizes: ['M', 'L', 'XL'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
-  //   7: { id: 7, name: 'Chinos', color: 'Khaki', price: 28, sizes: ['30', '32', '34'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
-  //   8: { id: 8, name: 'Summer Sundress', color: 'Yellow', price: 40, sizes: ['S', 'M'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-04.jpg' },
-  //   9: { id: 9, name: 'Leather Belt', color: 'Brown', price: 15, sizes: ['M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-  //   10: { id: 10, name: 'Scarf', category: 'Accessories', color: 'Red', price: 12, sizes: ['One Size'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-  //   11: { id: 11, name: 'Flannel Shirt', color: 'Plaid', price: 28, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
-  //   12: { id: 12, name: 'Cargo Pants', color: 'Green', price: 32, sizes: ['30', '32'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-01.jpg' },
-  //   13: { id: 13, name: 'Cocktail Dress', color: 'Black', price: 55, sizes: ['S', 'M', 'L'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-02.jpg' },
-  //   14: { id: 14, name: 'Sunglasses', color: 'Black', price: 18, sizes: ['One Size'], image: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-01-related-product-03.jpg' },
-  // };
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        // First try to fetch individual product
+        let response = await fetch(`http://localhost:5000/api/clothing/${id}`);
+        
+        if (!response.ok) {
+          // If individual product endpoint doesn't exist, fetch all products and filter
+          console.log('Individual product endpoint not found, fetching all products...');
+          response = await fetch('http://localhost:5000/api/clothing');
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch products');
+          }
+          
+          const allProducts = await response.json();
+          const foundProduct = allProducts.find(item => item._id === id);
+          
+          if (!foundProduct) {
+            throw new Error('Product not found');
+          }
+          
+          const mappedProduct = {
+            id: foundProduct._id,
+            name: foundProduct.name,
+            category: foundProduct.category,
+            color: foundProduct.color,
+            price: foundProduct.price,
+            sizes: foundProduct.sizes,
+            image: `http://localhost:5000${foundProduct.image}`,
+            description: foundProduct.description || "Beautiful and comfortable clothing piece that perfectly fits your style. Made with high-quality materials and designed for everyday wear.",
+          };
+          setProduct(mappedProduct);
+          setSelectedSize(mappedProduct.sizes[0] || '');
+          setLoading(false);
+          return;
+        }
+        
+        // If individual product endpoint exists
+        const data = await response.json();
+        const mappedProduct = {
+          id: data._id,
+          name: data.name,
+          category: data.category,
+          color: data.color,
+          price: data.price,
+          sizes: data.sizes,
+          image: `http://localhost:5000${data.image}`,
+          description: data.description || "Beautiful and comfortable clothing piece that perfectly fits your style. Made with high-quality materials and designed for everyday wear.",
+        };
+        setProduct(mappedProduct);
+        setSelectedSize(mappedProduct.sizes[0] || '');
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        setError(error.message || 'Product not found');
+        setLoading(false);
+      }
+    };
 
-  const product = products[id]; // Look up the product by ID
+    fetchProduct();
+  }, [id]);
 
-  if (!product) {
+  const handleAddToCart = () => {
+    if (!selectedSize) {
+      alert('Please select a size');
+      return;
+    }
+    
+    const productWithDetails = {
+      ...product,
+      selectedSize,
+      quantity,
+    };
+    
+    addToCart(productWithDetails);
+    setShowMessage(true);
+    setTimeout(() => setShowMessage(false), 2000);
+  };
+
+  const handleQuantityChange = (change) => {
+    setQuantity(prev => Math.max(1, prev + change));
+  };
+
+  if (loading) {
     return (
-      <div className="bg-pink-50 min-h-screen pt-16 text-center">
-        <h1 className="text-2xl font-bold text-rose-700 mt-10">Product Not Found</h1>
-        <Link to="/home" className="mt-4 inline-block text-rose-600 hover:text-rose-500">
-          Back to Products
-        </Link>
+      <div className="bg-pink-50 min-h-screen pt-16">
+        <NavHome />
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+        </div>
       </div>
     );
   }
 
-  const handleAddToCart = () => {
-    addToCart(product);
-    setShowMessage(true); // Show the message
-    setTimeout(() => setShowMessage(false), 2000); 
-  };
+  if (error || !product) {
+    return (
+      <div className="bg-pink-50 min-h-screen pt-16">
+        <NavHome />
+        <div className="flex flex-col justify-center items-center min-h-screen">
+          <div className="text-rose-600 text-xl mb-4">Product not found</div>
+          <button
+            onClick={() => navigate('/')}
+            className="bg-rose-500 text-white px-6 py-2 rounded-md hover:bg-rose-600 transition"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-    <Navbar/>
-    {showMessage && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black px-4 py-2 z-1 rounded-md shadow-lg transition-opacity duration-300">
+    <div className="bg-pink-50 min-h-screen pt-16">
+      <NavHome />
+      
+      {/* Message Display */}
+      {showMessage && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black px-4 py-2 z-50 rounded-md shadow-lg transition-opacity duration-300">
           Added to cart successfully!
         </div>
       )}
-    <div className="bg-pink-50 min-h-screen pt-16">
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-        <Link to="/home" className="text-rose-600 hover:text-rose-500 mb-6 inline-block">
-          ← Back to Products
-        </Link>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="flex justify-center">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full max-h-[500px] rounded-lg bg-rose-100 object-contain"
-            />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-rose-700">{product.name}</h1>
-            <p className="mt-2 text-lg text-rose-500">{product.category}</p>
-            <p className="mt-2 text-sm text-rose-400">{product.color}</p>
-            <p className="mt-4 text-2xl font-semibold text-rose-600">${product.price}</p>
-            <div className="mt-4 flex">
-              <h3 className="text-sm font-medium text-rose-700">Size:</h3>
-              <p className="text-sm text-rose-400">{product.sizes.join(', ')}</p>
+
+      {/* Product Details */}
+      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
+          {/* Image Gallery */}
+          <div className="flex flex-col">
+            <div className="overflow-hidden rounded-lg bg-white shadow-lg">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="h-full w-full object-cover object-center"
+              />
             </div>
-            <button
-              onClick={handleAddToCart}
-              className="mt-6 w-full bg-rose-500 text-white py-3 rounded-md hover:bg-rose-600 transition"
-            >
-              Add to Cart
-            </button>
+          </div>
+
+          {/* Product Info */}
+          <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
+            <h1 className="text-3xl font-bold tracking-tight text-rose-700">{product.name}</h1>
+            
+            <div className="mt-3">
+              <p className="text-3xl tracking-tight text-rose-600">Rs. {product.price}</p>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="sr-only">Description</h3>
+              <div className="space-y-6 text-base text-rose-600">
+                <p>{product.description}</p>
+              </div>
+            </div>
+
+            {/* Product Details */}
+            <div className="mt-6">
+              <div className="flex items-center space-x-6">
+                <div>
+                  <span className="text-sm font-medium text-rose-700">Category:</span>
+                  <span className="ml-2 text-sm text-rose-600">{product.category}</span>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-rose-700">Color:</span>
+                  <span className="ml-2 text-sm text-rose-600">{product.color}</span>
+                </div>
+              </div>
+            </div>
+
+            <form className="mt-6">
+              {/* Size Selection */}
+              <div>
+                <h3 className="text-sm font-medium text-rose-700">Size</h3>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition ${
+                        selectedSize === size
+                          ? 'bg-rose-500 text-white'
+                          : 'bg-white text-rose-600 border border-rose-300 hover:bg-rose-50'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quantity Selection */}
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-rose-700">Quantity</h3>
+                <div className="mt-2 flex items-center space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(-1)}
+                    className="w-8 h-8 rounded-full bg-rose-100 text-rose-600 hover:bg-rose-200 transition flex items-center justify-center"
+                  >
+                    -
+                  </button>
+                  <span className="w-12 text-center font-medium text-rose-700">{quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(1)}
+                    className="w-8 h-8 rounded-full bg-rose-100 text-rose-600 hover:bg-rose-200 transition flex items-center justify-center"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Add to Cart Button */}
+              <div className="mt-8 flex space-x-4">
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  className="flex-1 bg-rose-500 text-white py-3 px-8 rounded-md hover:bg-rose-600 transition font-medium"
+                >
+                  Add to Cart
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/home')}
+                  className="px-8 py-3 border border-rose-300 text-rose-600 rounded-md hover:bg-rose-50 transition font-medium"
+                >
+                  Continue Shopping
+                </button>
+              </div>
+            </form>
+            
           </div>
         </div>
       </div>
     </div>
-    </>
   );
 };
 

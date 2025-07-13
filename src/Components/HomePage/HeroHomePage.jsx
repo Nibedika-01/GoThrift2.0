@@ -10,7 +10,7 @@ const ProductsPage = () => {
   const [bottomsSlideIndex, setBottomsSlideIndex] = useState(0);
   const [dressesSlideIndex, setDressesSlideIndex] = useState(0);
   const [accessoriesSlideIndex, setAccessoriesSlideIndex] = useState(0);
-  const [showMessage, setShowMessage] = useState(false); // New state for message visibility
+  const [showMessage, setShowMessage] = useState(false);
   const [products, setProducts] = useState({
     recent: [],
     tops: [],
@@ -34,7 +34,7 @@ const ProductsPage = () => {
           image: `http://localhost:5000${item.image}`,
         }));
         setProducts({
-          recent : mappedData.slice(0, 5), //last 5 items for recent
+          recent : mappedData.slice(0, 5),
           tops: mappedData.filter((item) => item.category === 'Tops'),
           bottoms: mappedData.filter((item) => item.category === 'Bottoms'),
           dresses: mappedData.filter((item) => item.category === 'Dresses'),
@@ -50,14 +50,14 @@ const ProductsPage = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product);
-    setShowMessage(true); // Show the message
-    setTimeout(() => setShowMessage(false), 2000); // Hide after 2 seconds
+    setShowMessage(true);
+    setTimeout(() => setShowMessage(false), 2000);
   };
 
   const ProductCard = ({ product }) => (
     <div className="group relative bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
       <div className="relative">
-        <Link to={`/product/${product.id}`}>
+        <Link to={`/products/${product.id}`}>
           <img
             src={product.image}
             alt={product.name}
@@ -67,7 +67,7 @@ const ProductsPage = () => {
       </div>
       <div className="mt-4">
         <h3 className="text-sm text-rose-600 font-medium">
-          <Link to={`/product/${product.id}`}>
+          <Link to={`/products/${product.id}`}>
             {product.name}
           </Link>
         </h3>
