@@ -11,6 +11,10 @@ import ProfileSidebar from './Components/HomePage/ProfileSidebar'
 import Success from './Components/Payment/Success';
 import Failure from './Components/Payment/Failure';
 import PaymentComponent from './Components/Payment/PaymentForm';
+import AdminLogin from './Components/AdminPage/AdminLogin';
+import AdminDashboard from './Components/AdminPage/AdminDashboard';
+import AddClothing from './Components/AdminPage/AddClothing';
+import ViewOrders from './Components/AdminPage/ViewOrders';
 
 
 function App() {
@@ -29,6 +33,10 @@ function App() {
           <Route path="/" element={<PaymentComponent />} />
           <Route path="/payment-success" element={<Success />} />
           <Route path="/payment-failure" element={<Failure />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/add-clothing" element={<AddClothing />} />
+          <Route path="/view-orders" element={<ViewOrders/>} />
         </Routes>
       </BrowserRouter>
     </CartProvider>

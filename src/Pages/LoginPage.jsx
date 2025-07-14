@@ -74,7 +74,7 @@ const LoginHomePage = () => {
   };
 
   const handleAdminLogin = () => {
-    window.location.href = "http://localhost:5000/admin_login.html";
+    window.location.href = "/admin-login";
   };
 
   const toggleMode = () => {
