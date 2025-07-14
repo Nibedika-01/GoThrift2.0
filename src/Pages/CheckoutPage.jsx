@@ -113,49 +113,57 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (cart.length === 0) {
-      setCityError("Your cart is empty");
+  if (cart.length === 0) {
+    setCityError("Your cart is empty");
+    return;
+  }
+
+  if (paymentMethod === "cod") {
+    const isHetauda = formData.city.toLowerCase() === "hetauda" ||
+      formData.address.toLowerCase().includes("hetauda");
+    if (!isHetauda) {
+      setCityError("Cash on Delivery is only available in Hetauda");
       return;
     }
-
-    if (paymentMethod === "cod") {
-      const isHetauda = formData.city.toLowerCase() === "hetauda" ||
-        formData.address.toLowerCase().includes("hetauda");
-      if (!isHetauda) {
-        setCityError("Cash on Delivery is only available in Hetauda");
-        return;
+    try {
+      const requestBody = {
+        sessionId,
+        paymentMethod,
+        status: "Pending",
+        shippingInfo: formData,
+        items: cart.map((product) => ({
+          product: product._id || product.id,
+          quantity: product.quantity || 1,
+          totalAmount: product.price,
+        })),
+      };
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+      const data = await response.json();
+      console.log("Response:", data); // Log the response
+      if (response.ok) {
+        setSuccessMessage("Order placed successfully! Redirecting to home...");
+        setTimeout(() => {
+          navigate("/home");
+        }, 2000);
+      } else {
+        setCityError(data.message || "Error placing order");
       }
-      try {
-        const response = await fetch("http://localhost:5000/api/order", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            sessionId,
-            userId: user.userId,
-            paymentMethod,
-            shippingInfo: formData,
-          }),
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setSuccessMessage("Order placed successfully! Redirecting to home...");
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
-        } else {
-          setCityError(data.message || "Error placing order");
-        }
-      } catch (error) {
-        setCityError("Could not connect to server");
-      }
-    } else if (paymentMethod === "online") {
-      setAmount(total.toFixed(2));
-      setShowPaymentPopup(true);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      setCityError("Could not connect to server");
     }
-  };
+  } else if (paymentMethod === "online") {
+    setAmount(total.toFixed(2));
+    setShowPaymentPopup(true);
+  }
+};
 
   // Calculate subtotal
   const subtotal = cart.reduce(

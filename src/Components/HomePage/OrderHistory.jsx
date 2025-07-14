@@ -6,17 +6,24 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
   const [error, setError] = useState(null);
 
   // Fetch orders from database
+  const token = localStorage.getItem('userToken');
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        setLoading(true);        
-        const response = await fetch(`http://localhost:5000/api/orders/user/${userId}`);
+        setLoading(true);      
+        const response = await fetch(`http://localhost:5000/api/orders/user/${userId}`,{
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type' : 'application/json',
+          }
+        });
         
         if (!response.ok) {
           throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
         }
         
         const orders = await response.json();
+        console.log('Orders response:', orders);
         setOrderData(orders);
       } catch (err) {
         setError(err.message);
@@ -31,7 +38,7 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
     } else {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, token]);
 
   // Loading state
   if (loading) {

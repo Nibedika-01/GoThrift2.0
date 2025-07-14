@@ -6,6 +6,7 @@ const ViewOrders = () => {
   const [orders, setOrders] = useState([]);
   const [message, setMessage] = useState({ text: "", type: "" }); // type: 'success' | 'error'
   const [loading, setLoading] = useState(true);
+  const [statusUpdates, setStatusUpdates] = useState({});
 
   // Check admin token & redirect if none
   useEffect(() => {
@@ -31,11 +32,20 @@ const ViewOrders = () => {
         method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          'Content-Type': 'application/json',  
+          'Content-Type': 'application/json',
         },
       });
 
       const data = await res.json();
+      console.log("Others data:", data);
+      data.forEach((order, index) => {
+        console.log(`Order ${index + 1}:`, {
+          id: order._id,
+          shippingInfo: order.shippingInfo,
+          hasFirstName: !!order.shippingInfo?.firstName,
+          hasLastName: !!order.shippingInfo?.lastName,
+        });
+      });
 
       if (res.ok) {
         setOrders(data);
@@ -49,6 +59,66 @@ const ViewOrders = () => {
       setLoading(false);
     }
   };
+
+  //update status
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === orderId ? { ...order, status: newStatus } : order
+          )
+        );
+        showMessage("Order status updated successfully", "success");
+        setStatusUpdates((prev) => ({ ...prev, [orderId]: undefined }));
+      } else {
+        showMessage(data.message || "Error updating status", "error");
+      }
+    } catch (err) {
+      console.error("Error updating status:", err);
+      showMessage("Error: Could not connect to server", "error");
+    }
+  };
+
+  // Handle status selection change
+  const handleStatusChange = (orderId, newStatus) => {
+    setStatusUpdates((prev) => ({ ...prev, [orderId]: newStatus }));
+  };
+
+
+  //handle delete
+  const handleDelete = async (orderId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId))
+        showMessage("Order deleted successfully", "success");
+      } else {
+        showMessage(data.message || "Error deleting order", "error");
+      }
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      showMessage("Error: Could not connect to server", "error");
+    }
+  }
 
 
   // Handle Logout
@@ -180,10 +250,13 @@ const ViewOrders = () => {
                       Total (Rs.)
                     </th>
                     <th scope="col" className="px-6 py-3">
+                      Product Name
+                    </th>
+                    <th scope="col" className="px-6 py-3">
                       Status
                     </th>
                     <th scope="col" className="px-6 py-3">
-                      Actions
+                      Delete
                     </th>
                   </tr>
                 </thead>
@@ -195,29 +268,46 @@ const ViewOrders = () => {
                     >
                       <td className="px-6 py-4">{order._id}</td>
                       <td className="px-6 py-4">
-                        {order.shippingInfo?.name || "N/A"}
+                        {order.shippingInfo?.firstName + " " + order.shippingInfo?.lastName || "N/A"}
                       </td>
                       <td className="px-6 py-4">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4">{order.total.toFixed(2)}</td>
                       <td className="px-6 py-4">
+                        {order.totalAmount !== undefined && order.totalAmount !== null ? `Rs. ${order.totalAmount}` : "N/A"}
+                      </td>
+                      <td className="px-6 py-4">
+                        {order.items[0]?.product?.name || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 flex gap-2">
                         <select
-                          className="status-select p-2 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 text-rose-700 bg-rose-50"
-                          value={order.status}
-                          onChange={(e) =>
-                            handleStatusChange(order._id, e.target.value)
-                          }
+                          value={statusUpdates[order._id] || order.status || "Pending"}
+                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                          className="border border-rose-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
                         >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="shipped">Shipped</option>
-                          <option value="delivered">Delivered</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
                         </select>
+                        <button
+                          onClick={() =>
+                            handleUpdateStatus(order._id, statusUpdates[order._id] || order.status || "Pending")
+                          }
+                          className="bg-rose-500 text-white px-2 py-1 rounded-md text-sm hover:bg-rose-600 "
+                          disabled={!statusUpdates[order._id] || statusUpdates[order._id] === order.status}
+                          title="Update Status"
+                        >
+                          Update
+                        </button>
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleDelete(order._id)}
+                          onClick={() => {
+                            const confirmDelete = window.confirm("Are you sure you want to delete this order?");
+                            if (confirmDelete) {
+                              handleDelete(order._id)
+                            }
+                          }}
                           className="text-red-500 hover:text-red-700"
                           title="Delete Order"
                         >

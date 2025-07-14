@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const Clothing = require('../models/Clothing');
+require('dotenv').config();
 
 const router = express.Router();
 
@@ -31,13 +32,17 @@ const upload = multer({
 
 const checkAdmin = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
+  console.log("Authorization header:", req.headers.authorization);
+  console.log("Extracted token:", token);
   if (!token) {
+    console.log("No token provided");
     return res.status(401).json({ message: 'No token provided' });
   }
   try {
-    jwt.verify(token, 'secret_key');
+    jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch (error) {
+    console.log("JWT verification error:", error.message);
     res.status(401).json({ message: 'Invalid token' });
   }
 };

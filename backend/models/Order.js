@@ -11,32 +11,35 @@ const orderItemSchema = new mongoose.Schema({
         required: true,
         min: 1,
     },
-    price: {
+    totalAmount: {
         type: Number,
         required: true,
     },
 });
 
 const orderSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+    userId: {
+        type: String,
+    },
+    sessionId:{
+        type: String,
         required: true,
+    },
+    shippingInfo:{
+        firstName: String,
+        lastName: String,
+        email: String,
+        address: String,
+        city: String,
     },
     items: [orderItemSchema],
-    total: {
-        type: Number,
-        required: true,
-    },
     paymentMethod: {
         type: String,
         enum: ['cod', 'online'], required: true
     }, 
-     
-    paymentProof: { type: String },
     status: {
         type: String,
-        enum: ['pending', 'processing', 'shipped', 'delivered', 'cod', 'awaiting_payment', 'online'],
+        enum: ['Pending', 'Shipped', 'Delivered'],
         default: 'pending',
     },
     createdAt: {
