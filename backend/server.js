@@ -10,6 +10,7 @@ const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/order');
 const userRoutes = require('./routes/user');
 const searchRoutes = require('./routes/search');
+const inventoryRoutes = require('./routes/inventory')
 
 // Import your esewa controller - you'll need to convert it to CommonJS or use dynamic import
 // For now, let's create the payment routes directly in this file
@@ -39,6 +40,7 @@ app.use('/api', cartRoutes);
 app.use('/api', userRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', searchRoutes);
+app.use('/api', inventoryRoutes);
 app.use('/api/admin', adminRoutes);
 
 // MongoDB Connection

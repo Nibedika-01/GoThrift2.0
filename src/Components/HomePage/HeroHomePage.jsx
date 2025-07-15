@@ -61,7 +61,7 @@ const ProductsPage = () => {
           <img
             src={product.image}
             alt={product.name}
-            className="aspect-square w-full rounded-lg bg-rose-100 object-cover group-hover:opacity-80 lg:aspect-auto lg:h-80"
+            className="aspect-square w-full rounded-lg bg-rose-100 object-contain group-hover:opacity-80 lg:aspect-auto lg:h-80"
           />
         </Link>
       </div>

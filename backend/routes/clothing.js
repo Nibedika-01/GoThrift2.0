@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const router = express.Router();
 
+//multer storage setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -30,6 +31,8 @@ const upload = multer({
   },
 });
 
+
+//middleware to check admin jwt
 const checkAdmin = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   console.log("Authorization header:", req.headers.authorization);
@@ -47,6 +50,8 @@ const checkAdmin = (req, res, next) => {
   }
 };
 
+
+//add clothing item
 router.post('/clothing', checkAdmin, upload.single('image'), async (req, res) => {
   try {
     const { name, category, color, price, sizes } = req.body;
@@ -68,6 +73,8 @@ router.post('/clothing', checkAdmin, upload.single('image'), async (req, res) =>
   }
 });
 
+
+//get all clothing item
 router.get('/clothing', async(req, res) => {
   try {
     const clothes = await Clothing.find().sort({ createdAt: -1});
@@ -75,6 +82,36 @@ router.get('/clothing', async(req, res) => {
   }
   catch (error){
     res.status(500).json({ message: error.message});
+  }
+});
+
+// Update a product
+router.put('/clothing/:id', checkAdmin, async (req, res) => {
+  try {
+    const updated = await Clothing.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Delete a product
+router.delete('/clothing/:id', checkAdmin, async (req, res) => {
+  try {
+    await Clothing.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Mark as sold
+router.patch('/clothing/:id/sold', checkAdmin, async (req, res) => {
+  try {
+    const product = await Clothing.findByIdAndUpdate(req.params.id, { sold: true }, { new: true });
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

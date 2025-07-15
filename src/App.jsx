@@ -15,6 +15,7 @@ import AdminLogin from './Components/AdminPage/AdminLogin';
 import AdminDashboard from './Components/AdminPage/AdminDashboard';
 import AddClothing from './Components/AdminPage/AddClothing';
 import ViewOrders from './Components/AdminPage/ViewOrders';
+import ViewInventory from './Components/AdminPage/ViewInventory';
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/add-clothing" element={<AddClothing />} />
           <Route path="/view-orders" element={<ViewOrders/>} />
+          <Route path="/view-inventory" element={<ViewInventory/>} />
         </Routes>
       </BrowserRouter>
     </CartProvider>

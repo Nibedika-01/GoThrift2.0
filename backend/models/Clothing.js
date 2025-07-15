@@ -32,6 +32,10 @@ const clothingSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  sold: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 module.exports = mongoose.model('Clothing', clothingSchema);

@@ -160,7 +160,7 @@ const SearchModal = ({ isOpen, onClose, initialQuery = '', onQueryChange }) => {
                     </h3>
                     <p className="mt-1 text-sm text-rose-400">{product.color}</p>
                     <div className="mt-2 flex items-center justify-between">
-                      <p className="text-sm font-semibold text-rose-500">${product.price}</p>
+                      <p className="text-sm font-semibold text-rose-500">Rs. {product.price}</p>
                       <p className="text-sm text-rose-400">{product.category}</p>
                     </div>
                     <button
