@@ -10,18 +10,18 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        setLoading(true);      
-        const response = await fetch(`http://localhost:5000/api/orders/user/${userId}`,{
+        setLoading(true);
+        const response = await fetch(`http://localhost:5000/api/orders/user/${userId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type' : 'application/json',
+            'Content-Type': 'application/json',
           }
         });
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
         }
-        
+
         const orders = await response.json();
         console.log('Orders response:', orders);
         setOrderData(orders);
@@ -148,7 +148,10 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
                                   Date: {new Date(order.date || order.createdAt).toLocaleDateString()}
                                 </p>
                                 <p className="mt-1 text-sm text-rose-500">
-                                  Total: ${Number(order.total || order.amount).toFixed(2)}
+                                  Total: Rs.{" "}
+                                  {order.items
+                                    ? order.items.reduce((sum, item) => sum + item.totalAmount, 0)
+                                    : "00"}
                                 </p>
                                 <p className="mt-1 text-sm text-rose-500">
                                   Status: <span className={`font-medium ${getStatusColor(order.status)}`}>

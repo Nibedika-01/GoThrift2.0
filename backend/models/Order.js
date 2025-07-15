@@ -19,13 +19,15 @@ const orderItemSchema = new mongoose.Schema({
 
 const orderSchema = new mongoose.Schema({
     userId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
-    sessionId:{
+    sessionId: {
         type: String,
         required: true,
     },
-    shippingInfo:{
+    shippingInfo: {
         firstName: String,
         lastName: String,
         email: String,
@@ -36,7 +38,7 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: {
         type: String,
         enum: ['cod', 'online'], required: true
-    }, 
+    },
     status: {
         type: String,
         enum: ['Pending', 'Shipped', 'Delivered'],

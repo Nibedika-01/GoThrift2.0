@@ -37,15 +37,15 @@ const ViewOrders = () => {
       });
 
       const data = await res.json();
-      console.log("Others data:", data);
-      data.forEach((order, index) => {
-        console.log(`Order ${index + 1}:`, {
-          id: order._id,
-          shippingInfo: order.shippingInfo,
-          hasFirstName: !!order.shippingInfo?.firstName,
-          hasLastName: !!order.shippingInfo?.lastName,
-        });
-      });
+      // console.log("Others data:", data);
+      // data.forEach((order, index) => {
+      //   console.log(`Order ${index + 1}:`, {
+      //     id: order._id,
+      //     shippingInfo: order.shippingInfo,
+      //     hasFirstName: !!order.shippingInfo?.firstName,
+      //     hasLastName: !!order.shippingInfo?.lastName,
+      //   });
+      // });
 
       if (res.ok) {
         setOrders(data);
@@ -247,7 +247,7 @@ const ViewOrders = () => {
                       Date
                     </th>
                     <th scope="col" className="px-6 py-3">
-                      Total (Rs.)
+                      Total
                     </th>
                     <th scope="col" className="px-6 py-3">
                       Product Name
@@ -274,7 +274,9 @@ const ViewOrders = () => {
                         {new Date(order.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4">
-                        {order.totalAmount !== undefined && order.totalAmount !== null ? `Rs. ${order.totalAmount}` : "N/A"}
+                        Rs.{" "}
+                        {order.items
+                          ? order.items.reduce((sum, item) => sum + item.totalAmount, 0) : "N/A"}
                       </td>
                       <td className="px-6 py-4">
                         {order.items[0]?.product?.name || "N/A"}

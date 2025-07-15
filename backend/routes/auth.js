@@ -29,7 +29,7 @@ const userMiddleware = (req, res, next) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId || decoded.id; //set userId from token
+    req.userId = decoded.userId || decoded.id || decoded._id; //set userId from token
     next();
   } catch (error) {
     console.error('JWT verify failed:', error);
