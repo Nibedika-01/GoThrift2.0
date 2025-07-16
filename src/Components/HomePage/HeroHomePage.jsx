@@ -31,10 +31,11 @@ const ProductsPage = () => {
           color: item.color,
           price: item.price,
           sizes: item.sizes,
+          sold: item.sold,
           image: `http://localhost:5000${item.image}`,
         }));
         setProducts({
-          recent : mappedData.slice(0, 5),
+          recent: mappedData.slice(0, 5),
           tops: mappedData.filter((item) => item.category === 'Tops'),
           bottoms: mappedData.filter((item) => item.category === 'Bottoms'),
           dresses: mappedData.filter((item) => item.category === 'Dresses'),
@@ -57,7 +58,7 @@ const ProductsPage = () => {
   const ProductCard = ({ product }) => (
     <div className="group relative bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
       <div className="relative">
-        <Link to={`/products/${product.id}`}>
+        <Link to={`/products/${product._id}`}>
           <img
             src={product.image}
             alt={product.name}
@@ -66,10 +67,14 @@ const ProductsPage = () => {
         </Link>
       </div>
       <div className="mt-4">
-        <h3 className="text-sm text-rose-600 font-medium">
-          <Link to={`/products/${product.id}`}>
-            {product.name}
-          </Link>
+        <h3 className="text-sm text-rose-600 font-medium flex items-center gap-2">
+          <Link to={`/products/${product._id}`}>{product.name}</Link>
+
+          {product.sold && (
+            <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shadow-sm">
+              Sold
+            </span>
+          )}
         </h3>
         <p className="mt-1 text-sm text-rose-400">{product.color}</p>
         <div className="mt-2 flex items-center justify-between">
@@ -103,34 +108,34 @@ const ProductsPage = () => {
 
     return (
       <div className="relative">
-      {products.length === 0 ? (
-        <p className="mt-6 text-rose-500 text-center">No items available in this category</p>
-      ):(
-        <>
-        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-          {visibleProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-        <div className="mt-4 flex justify-between">
-          <button
-            onClick={handlePrev}
-            className="bg-rose-500 text-white px-4 py-2 rounded-md hover:bg-rose-600 transition disabled:opacity-50"
-            disabled={products.length <= productsPerSlide}
-          >
-            Previous
-          </button>
-          <button
-            onClick={handleNext}
-            className="bg-rose-500 text-white px-4 py-2 rounded-md hover:bg-rose-600 transition disabled:opacity-50"
-            disabled={products.length <= productsPerSlide}
-          >
-            Next
-          </button>
-        </div>
-        </>
-      )
-      }
+        {products.length === 0 ? (
+          <p className="mt-6 text-rose-500 text-center">No items available in this category</p>
+        ) : (
+          <>
+            <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+              {visibleProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            <div className="mt-4 flex justify-between">
+              <button
+                onClick={handlePrev}
+                className="bg-rose-500 text-white px-4 py-2 rounded-md hover:bg-rose-600 transition disabled:opacity-50"
+                disabled={products.length <= productsPerSlide}
+              >
+                Previous
+              </button>
+              <button
+                onClick={handleNext}
+                className="bg-rose-500 text-white px-4 py-2 rounded-md hover:bg-rose-600 transition disabled:opacity-50"
+                disabled={products.length <= productsPerSlide}
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )
+        }
       </div>
     );
   };

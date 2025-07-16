@@ -5,7 +5,7 @@ const AdminLogin = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -38,12 +38,12 @@ const AdminLogin = () => {
 
       <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden animate-fadeIn">
         <button
-          onClick={() => navigate('/login')}
-          className="absolute top-4 left-4 p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
-          title="Go back"
+          onClick={() => navigate("/login")}
+          className="p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
+          title="Back to Dashboard"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
 
@@ -69,7 +69,7 @@ const AdminLogin = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 bg-rose-50 placeholder-rose-400"
+                  className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 bg-rose-50"
                   placeholder="Enter username"
                 />
                 <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

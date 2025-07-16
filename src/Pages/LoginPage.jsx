@@ -65,14 +65,6 @@ const LoginHomePage = () => {
     }
   };
 
-  const handleGoBack = () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      navigate('/'); // Fallback to home page
-    }
-  };
-
   const handleAdminLogin = () => {
     window.location.href = "/admin-login";
   };
@@ -95,9 +87,9 @@ const LoginHomePage = () => {
 
         {/* Back button */}
         <button
-          onClick={handleGoBack}
-          className="absolute top-4 left-4 p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
-          title="Go back"
+          onClick={() => navigate("/home")}
+          className="p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
+          title="Back to Dashboard"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -259,8 +251,8 @@ const LoginHomePage = () => {
             type="submit"
             disabled={loading}
             className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
               } shadow-lg`}
           >
             {loading ? (
