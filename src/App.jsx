@@ -16,6 +16,8 @@ import AdminDashboard from './Components/AdminPage/AdminDashboard';
 import AddClothing from './Components/AdminPage/AddClothing';
 import ViewOrders from './Components/AdminPage/ViewOrders';
 import ViewInventory from './Components/AdminPage/ViewInventory';
+import SellClothesPage from './Pages/SellingClothesPage';
+import VerifyEmail from './Pages/VerifyEmail';
 
 
 function App() {
@@ -39,6 +41,8 @@ function App() {
           <Route path="/add-clothing" element={<AddClothing />} />
           <Route path="/view-orders" element={<ViewOrders/>} />
           <Route path="/view-inventory" element={<ViewInventory/>} />
+          <Route path="/sell-clothes" element={<SellClothesPage/>}/>
+          <Route path="/verify-email" element={<VerifyEmail/>}/>
         </Routes>
       </BrowserRouter>
     </CartProvider>

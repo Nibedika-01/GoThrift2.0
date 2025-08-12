@@ -5,13 +5,15 @@ import AuthContext from "../AuthContext";
 const LoginHomePage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useContext(AuthContext);
+  const { login, register, resendVerification } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || "/home";
@@ -19,25 +21,33 @@ const LoginHomePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccessMessage("");
     setLoading(true);
 
     // Basic validation
-    if (!email || !password || (!isLogin && !phoneNumber)) {
-      setError("Please fill in all fields");
+    if (!email || !password) {
+      setError("Please fill in all required fields");
       setLoading(false);
       return;
     }
 
-    if (!isLogin && password !== confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      setLoading(false);
-      return;
+    // Registration specific validation
+    if (!isLogin) {
+      if (!phoneNumber || !name) {
+        setError("Please fill in all required fields");
+        setLoading(false);
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters long");
+        setLoading(false);
+        return;
+      }
     }
 
     try {
@@ -45,21 +55,36 @@ const LoginHomePage = () => {
         await login(email, password);
         navigate(from, { replace: true });
       } else {
-        const response = await fetch("http://localhost:5000/api/user/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, phoneNumber }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Registration failed");
-        }
-        await login(email, password);
-        navigate(from, { replace: true });
+        await register(email, password, phoneNumber, name);
+        setSuccessMessage("Registration successful! Please check your email to verify your account.");
+        setIsLogin(true); // Switch to login mode
+        setEmail(email); // Keep email for convenience
+        setName("");
+        setPassword("");
+        setConfirmPassword("");
+        setPhoneNumber("");
       }
     } catch (err) {
       console.error("Error:", err);
-      setError(err.message || "Login Failed" || "Registration failed");
+      setError(err.message || (isLogin ? "Login failed" : "Registration failed"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      setError("Please enter your email to resend verification");
+      return;
+    }
+    setLoading(true);
+    try {
+      const message = await resendVerification(email);
+      setSuccessMessage(message);
+      setError("");
+    } catch (err) {
+      setError(err.message || "Failed to resend verification email");
+      setSuccessMessage("");
     } finally {
       setLoading(false);
     }
@@ -72,10 +97,12 @@ const LoginHomePage = () => {
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setError("");
+    setSuccessMessage("");
     setEmail("");
     setPassword("");
     setConfirmPassword("");
     setPhoneNumber("");
+    setName("");
   };
 
   return (
@@ -103,7 +130,7 @@ const LoginHomePage = () => {
           title="Login as Admin"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
         </button>
 
@@ -111,7 +138,7 @@ const LoginHomePage = () => {
         <div className="text-center mb-8 relative z-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full mb-4">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 008 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-rose-700 mb-2">
@@ -121,6 +148,26 @@ const LoginHomePage = () => {
             {isLogin ? "Sign in to your account" : "Create your new account"}
           </p>
         </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center mb-6">
+            <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-green-700 text-sm">{successMessage}</p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center mb-6">
+            <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
@@ -145,22 +192,65 @@ const LoginHomePage = () => {
             </div>
 
             {!isLogin && (
-              <div>
-                <label className="block text-sm font-semibold text-rose-700 mb-2">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    required
-                    className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
-                    placeholder="Enter your phone number"
-                  />
-                  <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
+              <div className="flex gap-6">
+                {/* Phone Number Field */}
+                <div className="w-1/2">
+                  <label className="block text-sm font-semibold text-rose-700 mb-2">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      required
+                      className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
+                      placeholder="Enter your number"
+                    />
+                    <svg
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Name Field */}
+                <div className="w-1/2">
+                  <label className="block text-sm font-semibold text-rose-700 mb-2">
+                    Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
+                      placeholder="Enter your name"
+                    />
+                    <svg
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5.121 17.804A9 9 0 0112 15a9 9 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </div>
                 </div>
               </div>
             )}
@@ -238,22 +328,14 @@ const LoginHomePage = () => {
             )}
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
-              <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-red-700 text-sm">{error}</p>
-            </div>
-          )}
-
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
-              } shadow-lg`}
+            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
+            } shadow-lg`}
           >
             {loading ? (
               <div className="flex items-center justify-center">
@@ -267,6 +349,18 @@ const LoginHomePage = () => {
               isLogin ? "Sign In" : "Create Account"
             )}
           </button>
+
+          {isLogin && (
+            <button
+              onClick={handleResendVerification}
+              disabled={loading}
+              className={`w-full mt-4 py-4 rounded-xl font-semibold text-rose-600 border-2 border-rose-200 hover:bg-rose-50 transition-all duration-200 ${
+                loading ? "cursor-not-allowed opacity-50" : ""
+              }`}
+            >
+              Resend Verification Email
+            </button>
+          )}
         </form>
 
         {/* Toggle between login and register */}
@@ -295,7 +389,7 @@ const LoginHomePage = () => {
               className="inline-flex items-center px-4 py-2 bg-rose-500 hover:bg-rose-700 text-white cursor-pointer text-sm font-medium rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
               Login as Admin
             </button>
