@@ -1,22 +1,33 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 
-const LoginHomePage = () => {
-  const [isLogin, setIsLogin] = useState(true);
+const LoginPage = () => {
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, register, resendVerification } = useContext(AuthContext);
+  const [showResendButton, setShowResendButton] = useState(false);
+  const { login, resendVerification } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || "/home";
+
+  // Check if user came from signup and set email + show resend button
+  useEffect(() => {
+    if (location.state?.email) {
+      setEmail(location.state.email); // Pre-fill email from signup
+      setShowResendButton(true); // Show resend button
+      // Hide resend button after 60 seconds
+      const timer = setTimeout(() => {
+        setShowResendButton(false);
+      }, 60000);
+      // Cleanup timer on component unmount
+      return () => clearTimeout(timer);
+    }
+  }, [location.state?.email]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,42 +42,12 @@ const LoginHomePage = () => {
       return;
     }
 
-    // Registration specific validation
-    if (!isLogin) {
-      if (!phoneNumber || !name) {
-        setError("Please fill in all required fields");
-        setLoading(false);
-        return;
-      }
-      if (password !== confirmPassword) {
-        setError("Passwords do not match");
-        setLoading(false);
-        return;
-      }
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters long");
-        setLoading(false);
-        return;
-      }
-    }
-
     try {
-      if (isLogin) {
-        await login(email, password);
-        navigate(from, { replace: true });
-      } else {
-        await register(email, password, phoneNumber, name);
-        setSuccessMessage("Registration successful! Please check your email to verify your account.");
-        setIsLogin(true); // Switch to login mode
-        setEmail(email); // Keep email for convenience
-        setName("");
-        setPassword("");
-        setConfirmPassword("");
-        setPhoneNumber("");
-      }
+      await login(email, password);
+      navigate(from, { replace: true });
     } catch (err) {
       console.error("Error:", err);
-      setError(err.message || (isLogin ? "Login failed" : "Registration failed"));
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -92,17 +73,6 @@ const LoginHomePage = () => {
 
   const handleAdminLogin = () => {
     window.location.href = "/admin-login";
-  };
-
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setError("");
-    setSuccessMessage("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setPhoneNumber("");
-    setName("");
   };
 
   return (
@@ -142,10 +112,10 @@ const LoginHomePage = () => {
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-rose-700 mb-2">
-            {isLogin ? "Welcome Back!" : "Join Us Today"}
+            Welcome Back!
           </h2>
           <p className="text-rose-500 text-sm">
-            {isLogin ? "Sign in to your account" : "Create your new account"}
+            Sign in to your account
           </p>
         </div>
 
@@ -185,75 +155,11 @@ const LoginHomePage = () => {
                   className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
                   placeholder="Enter your email"
                 />
-                <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 22">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                 </svg>
               </div>
             </div>
-
-            {!isLogin && (
-              <div className="flex gap-6">
-                {/* Phone Number Field */}
-                <div className="w-1/2">
-                  <label className="block text-sm font-semibold text-rose-700 mb-2">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                      className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
-                      placeholder="Enter your number"
-                    />
-                    <svg
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Name Field */}
-                <div className="w-1/2">
-                  <label className="block text-sm font-semibold text-rose-700 mb-2">
-                    Name
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                      className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
-                      placeholder="Enter your name"
-                    />
-                    <svg
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5.121 17.804A9 9 0 0112 15a9 9 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div>
               <label className="block text-sm font-semibold text-rose-700 mb-2">
@@ -289,43 +195,6 @@ const LoginHomePage = () => {
                 </button>
               </div>
             </div>
-
-            {!isLogin && (
-              <div>
-                <label className="block text-sm font-semibold text-rose-700 mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
-                    placeholder="Confirm your password"
-                  />
-                  <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-rose-400 hover:text-rose-600 transition-colors"
-                  >
-                    {showPassword ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           <button
@@ -346,11 +215,11 @@ const LoginHomePage = () => {
                 Processing...
               </div>
             ) : (
-              isLogin ? "Sign In" : "Create Account"
+              "Sign In"
             )}
           </button>
 
-          {isLogin && (
+          {showResendButton && (
             <button
               onClick={handleResendVerification}
               disabled={loading}
@@ -363,7 +232,7 @@ const LoginHomePage = () => {
           )}
         </form>
 
-        {/* Toggle between login and register */}
+        {/* Toggle to signup */}
         <div className="mt-5 text-center relative z-10">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -371,15 +240,15 @@ const LoginHomePage = () => {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-4 bg-white text-rose-500">
-                {isLogin ? "New to our platform?" : "Already have an account?"}
+                New to our platform?
               </span>
             </div>
           </div>
           <button
-            onClick={toggleMode}
+            onClick={() => navigate("/signup")}
             className="mt-4 text-rose-600 hover:text-rose-800 font-semibold transition-colors duration-200 hover:underline"
           >
-            {isLogin ? "Create an account" : "Sign in instead"}
+            Create an account
           </button>
 
           {/* Admin Login Button */}
@@ -400,4 +269,4 @@ const LoginHomePage = () => {
   );
 };
 
-export default LoginHomePage;
+export default LoginPage;
