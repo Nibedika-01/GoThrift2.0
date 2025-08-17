@@ -58,6 +58,7 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("online");
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [cityError, setCityError] = useState("");
+  const [showError, setShowError] =useState(false);
   const [amount, setAmount] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [formData, setFormData] = useState({
@@ -70,6 +71,15 @@ const Checkout = () => {
   // const [amount, setAmount] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+
+
+  useEffect(() => {
+    if(cityError){
+      setShowError(true);
+      const timer = setTimeout(() => setShowError(false), 2000)
+      return() => clearTimeout(timer);
+    }
+  }, [cityError])
 
   // Redirects to login if not authenticated
   useEffect(() => {
@@ -113,57 +123,57 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
-  if (cart.length === 0) {
-    setCityError("Your cart is empty");
-    return;
-  }
-
-  if (paymentMethod === "cod") {
-    const isHetauda = formData.city.toLowerCase() === "hetauda" ||
-      formData.address.toLowerCase().includes("hetauda");
-    if (!isHetauda) {
-      setCityError("Cash on Delivery is only available in Hetauda");
+    if (cart.length === 0) {
+      setCityError("Your cart is empty");
       return;
     }
-    try {
-      const requestBody = {
-        sessionId,
-        paymentMethod,
-        status: "Pending",
-        shippingInfo: formData,
-        items: cart.map((product) => ({
-          product: product._id || product.id,
-          quantity: product.quantity || 1,
-          totalAmount: product.price,
-        })),
-      };
-      const response = await fetch("http://localhost:5000/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-      const data = await response.json();
-      console.log("Response:", data); // Log the response
-      if (response.ok) {
-        setSuccessMessage("Order placed successfully! Redirecting to home...");
-        setTimeout(() => {
-          navigate("/home");
-        }, 2000);
-      } else {
-        setCityError(data.message || "Error placing order");
+
+    if (paymentMethod === "cod") {
+      const isHetauda = formData.city.toLowerCase() === "hetauda" ||
+        formData.address.toLowerCase().includes("hetauda");
+      if (!isHetauda) {
+        setCityError("Cash on Delivery is only available in Hetauda");
+        return;
       }
-    } catch (error) {
-      console.error("Error placing order:", error);
-      setCityError("Could not connect to server");
+      try {
+        const requestBody = {
+          sessionId,
+          paymentMethod,
+          status: "Pending",
+          shippingInfo: formData,
+          items: cart.map((product) => ({
+            product: product._id || product.id,
+            quantity: product.quantity || 1,
+            totalAmount: product.price,
+          })),
+        };
+        const response = await fetch("http://localhost:5000/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        });
+        const data = await response.json();
+        console.log("Response:", data); // Log the response
+        if (response.ok) {
+          setSuccessMessage("Order placed successfully! Redirecting to home...");
+          setTimeout(() => {
+            navigate("/home");
+          }, 2000);
+        } else {
+          setCityError(data.message || "Error placing order");
+        }
+      } catch (error) {
+        console.error("Error placing order:", error);
+        setCityError("Could not connect to server");
+      }
+    } else if (paymentMethod === "online") {
+      setAmount(total.toFixed(2));
+      setShowPaymentPopup(true);
     }
-  } else if (paymentMethod === "online") {
-    setAmount(total.toFixed(2));
-    setShowPaymentPopup(true);
-  }
-};
+  };
 
   // Calculate subtotal
   const subtotal = cart.reduce(
@@ -426,11 +436,21 @@ const Checkout = () => {
           </div>
         </div>
         {/* Error Message */}
-        {cityError && (
-          <div className="mt-4 max-w-5xl w-full">
+        {showError && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-center">
-              <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-5 h-5 text-red-500 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <p className="text-red-700 text-sm">{cityError}</p>
             </div>
