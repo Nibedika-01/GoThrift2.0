@@ -49,9 +49,9 @@ app.get('/', (req, res) => {
   res.send('Backend server is running');
 });
 
-// Payment routes - temporarily inline until you fix the import issue
+// Payment routes
 const { EsewaPaymentGateway, EsewaCheckStatus } = require('esewajs');
-const { Transaction } = require('./models/Transaction'); // You'll need to convert this to CommonJS too
+const { Transaction } = require('./models/Transaction'); 
 
 // eSewa Payment Routes
 app.post("/initiate-payment", async (req, res) => {
@@ -126,7 +126,7 @@ app.post("/payment-status", async (req, res) => {
     }
 });
 
-// Start Server
+// server starts
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

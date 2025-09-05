@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import nibedika from '../../assets/Images/nibedika.png';
 import kripa from '../../assets/Images/kripa.png';
-import prajeena from '../../assets/Images/prajeena.png';
+import prajena from '../../assets/Images/prajena.jpg';
 
 const AboutUsLandingPage = () => {
   const sectionRef = useRef(null);
@@ -45,7 +45,7 @@ const AboutUsLandingPage = () => {
     {
       name: 'Prajeena Bhlon',
       position: 'Developer',
-      img: prajeena,
+      img: prajena,
       gradient: 'from-rose-100 to-rose-400',
       textColor: 'text-rose-300',
     },

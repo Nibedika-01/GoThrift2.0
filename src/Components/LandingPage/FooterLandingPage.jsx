@@ -26,7 +26,7 @@ const FooterLandingPage = () => {
             <img src="https://img.icons8.com/fluent/30/000000/twitter.png" />
         </a>
     </div>
-    <p className="text-center text-gray-700 font-medium">&copy; 2022 Company Ltd. All rights reservered.</p>
+    <p className="text-center text-gray-700 font-medium">&copy; 2025 GoThrift project.</p>
 </footer>
     </>
   )
