@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("userToken"));
   const [loading, setLoading] = useState(true);
 
-  // 🧠 Load user info if token exists
+  // Load user info if token exists
   useEffect(() => {
     const fetchUser = async () => {
       if (!token) {
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, [token]);
 
-  // 🔐 Login Function
+  // Login Function
   const login = async (email, password) => {
     try {
       const response = await fetch("http://localhost:5000/api/user/login", {
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 🆕 Register Function (No auto-login if email verification is needed)
+  // Register Function (No auto-login if email verification is needed)
   const register = async (email, password, phoneNumber, name) => {
     try {
       const response = await fetch("http://localhost:5000/api/user/register", {
@@ -103,8 +103,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✉️ Resend Verification Email
+  // Resend Verification Email
   const resendVerification = async (email) => {
+    console.log("Resend verification for:", email);
     try {
       const response = await fetch("http://localhost:5000/api/resend-verification", {
         method: "POST",
@@ -112,17 +113,19 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email })
       });
 
+      console.log("Resend response status:", response.status);
       const data = await response.json();
+      console.log("Resend response data:", data);
 
       if (!response.ok) throw new Error(data.message || "Failed to resend");
 
-      return data.message;
+      return data.message || "Verification email resent successfully";
     } catch (error) {
       throw error.message || "Error resending verification email";
     }
   };
 
-  // 🚪 Logout
+  // Logout
   const logout = () => {
     setToken(null);
     setUser(null);

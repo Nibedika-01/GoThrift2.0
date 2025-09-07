@@ -8,7 +8,7 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [countdown, setCountdown] = useState(60);
+  const [countdown, setCountdown] = useState(30);
   const [showPassword, setShowPassword] = useState(false);
   const [showResendButton, setShowResendButton] = useState(false);
   const { login, resendVerification } = useContext(AuthContext);
@@ -22,16 +22,16 @@ const LoginPage = () => {
       setEmail(location.state.email); // Pre-fill email from signup
       setShowResendButton(true); // Show resend button
       setSuccessMessage("Please verify your email. A verification link has been sent to your email address.");
-  
+
       const messageTimer = setTimeout(() => {
         setSuccessMessage("");
       }, 5000);
 
       const resendTimer = setTimeout(() => {
         setShowResendButton(false);
-      }, 60000);
+      }, 80000);
 
-     const countdownTimer = setInterval(() => {
+      const countdownTimer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(countdownTimer);
@@ -41,11 +41,11 @@ const LoginPage = () => {
         });
       }, 1000);
       // Cleanup timer on component unmount
-      return () =>{
+      return () => {
         clearTimeout(messageTimer);
         clearTimeout(resendTimer);
         clearInterval(countdownTimer);
-      } 
+      }
     }
   }, [location.state?.email]);
 
@@ -79,14 +79,16 @@ const LoginPage = () => {
       return;
     }
     setLoading(true);
+    setError("");
+    setSuccessMessage("");
+
     try {
       const message = await resendVerification(email);
-      setSuccessMessage(message);
-      setError("");
-      setCountdown(30);
+      setSuccessMessage(message || "Verification email resent successfully");
+      setCountdown(60);
 
       const messageTimer = setTimeout(() => {
-        setSuccessMessage(false);
+        setSuccessMessage("");
       }, 5000);
 
       const countdownTimer = setInterval(() => {
@@ -101,7 +103,8 @@ const LoginPage = () => {
 
       return () => {
         clearTimeout(messageTimer),
-        clearInterval(countdownTimer);};
+          clearInterval(countdownTimer);
+      };
     } catch (err) {
       setError(err.message || "Failed to resend verification email");
       setSuccessMessage("");
@@ -239,11 +242,10 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${
-              loading
+            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
-            } shadow-lg`}
+              } shadow-lg`}
           >
             {loading ? (
               <div className="flex items-center justify-center">
@@ -260,13 +262,27 @@ const LoginPage = () => {
 
           {showResendButton && (
             <button
+              type="button"
               onClick={handleResendVerification}
-              disabled={loading}
-              className={`w-full mt-4 py-4 rounded-xl font-semibold text-rose-600 border-2 border-rose-200 hover:bg-rose-50 transition-all duration-200 ${
-                loading ? "cursor-not-allowed opacity-50" : ""
-              }`}
+              disabled={loading || countdown > 0}
+              className={`w-full py-4 rounded-xl font-semibold transition-all duration-200 ${loading || countdown > 0
+                  ? "cursor-not-allowed opacity-50 bg-gray-300 text-gray-500 border-2 border-gray-200"
+                  : "text-rose-600 border-2 border-rose-200 hover:bg-rose-50 bg-white"
+                }`}
             >
-              Resend Verification Email ({countdown}s)
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Sending...
+                </div>
+              ) : countdown > 0 ? (
+                `Resend Verification Email (${countdown}s)`
+              ) : (
+                "Resend Verification Email"
+              )}
             </button>
           )}
         </form>

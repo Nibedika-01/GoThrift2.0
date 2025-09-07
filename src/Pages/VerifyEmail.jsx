@@ -8,7 +8,7 @@ const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const hasRun = useRef(false); // 👈 prevents re-run
+  const hasRun = useRef(false); // prevents re-run
 
   useEffect(() => {
     if (hasRun.current) return;

@@ -32,7 +32,7 @@ router.post('/user/register', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password required' });
     }
-    
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
@@ -41,7 +41,7 @@ router.post('/user/register', async (req, res) => {
     const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
     const user = new User({
-      email, 
+      email,
       password,
       displayName: name || email.split('@')[0],
       phoneNumber,
@@ -52,7 +52,7 @@ router.post('/user/register', async (req, res) => {
 
     await user.save();
 
-    const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Try to send email, but don't fail registration if email fails
     try {
@@ -65,7 +65,7 @@ router.post('/user/register', async (req, res) => {
       `;
 
       await sendEmail(email, "Verify Your Email - GoThrift", emailContent);
-      
+
       res.status(201).json({
         token,
         user: {
@@ -78,10 +78,10 @@ router.post('/user/register', async (req, res) => {
         },
         message: "User registered successfully. Please check your email to verify."
       });
-      
+
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError);
-      
+
       // Still return success, but with a different message
       res.status(201).json({
         token,
@@ -96,7 +96,7 @@ router.post('/user/register', async (req, res) => {
         message: "User registered successfully. However, we couldn't send the verification email. Please try using the 'Resend Verification Email' button."
       });
     }
-    
+
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ message: error.message });
@@ -182,41 +182,44 @@ router.post('/resend-verification', async (req, res) => {
   const { email } = req.body;
 
   try {
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found with this email address' });
     }
 
     if (user.isVerified) {
       return res.status(400).json({ message: 'Email already verified' });
     }
 
-    // Generate new token
-    const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
-    });
-
+    const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
     user.verificationToken = verificationToken;
     user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
     await user.save();
 
-    // Send email
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-    const emailContent = `
-      <h2>Email Verification - GoThrift</h2>
-      <p>Please verify your email by clicking the link below:</p>
-      <a href="${verificationLink}">Verify Email</a>
-      <p>This link will expire in 24 hours.</p>
-    `;
-
-    await sendEmail(email, 'Verify Your Email - GoThrift', emailContent);
-
-    res.status(200).json({ message: 'Verification email resent' });
+    try {
+      const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+      const emailContent = `
+        <h2>Email Verification - GoThrift</h2>
+        <p>You requested to resend the verification email.</p>
+        <p>Please verify your email by clicking the link below to access all features:</p>
+        <a href="${verificationLink}" style="background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 10px 0;">Verify Email</a>
+        <p>This link will expire in 24 hours.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+      `;
+      await sendEmail(email, 'Verify Your Email - GoThrift', emailContent);
+      res.status(200).json({ message: 'Verification email has been resent successfully! Please check your inbox.' });
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      res.status(500).json({ message: error.message });
+    }
   } catch (error) {
-    console.error('Resend verification error:', error);
-    res.status(500).json({ message: error.message });
+    console.error('Resend verification outer error:', error);
+    res.status(500).json({ message: 'Server error while resending verification email' });
   }
 });
-
 
 module.exports = router;
