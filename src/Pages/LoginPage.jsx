@@ -8,6 +8,7 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(60);
   const [showPassword, setShowPassword] = useState(false);
   const [showResendButton, setShowResendButton] = useState(false);
   const { login, resendVerification } = useContext(AuthContext);
@@ -20,12 +21,31 @@ const LoginPage = () => {
     if (location.state?.email) {
       setEmail(location.state.email); // Pre-fill email from signup
       setShowResendButton(true); // Show resend button
-      // Hide resend button after 60 seconds
-      const timer = setTimeout(() => {
+      setSuccessMessage("Please verify your email. A verification link has been sent to your email address.");
+  
+      const messageTimer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 5000);
+
+      const resendTimer = setTimeout(() => {
         setShowResendButton(false);
       }, 60000);
+
+     const countdownTimer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownTimer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
       // Cleanup timer on component unmount
-      return () => clearTimeout(timer);
+      return () =>{
+        clearTimeout(messageTimer);
+        clearTimeout(resendTimer);
+        clearInterval(countdownTimer);
+      } 
     }
   }, [location.state?.email]);
 
@@ -63,6 +83,25 @@ const LoginPage = () => {
       const message = await resendVerification(email);
       setSuccessMessage(message);
       setError("");
+      setCountdown(30);
+
+      const messageTimer = setTimeout(() => {
+        setSuccessMessage(false);
+      }, 5000);
+
+      const countdownTimer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownTimer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => {
+        clearTimeout(messageTimer),
+        clearInterval(countdownTimer);};
     } catch (err) {
       setError(err.message || "Failed to resend verification email");
       setSuccessMessage("");
@@ -227,7 +266,7 @@ const LoginPage = () => {
                 loading ? "cursor-not-allowed opacity-50" : ""
               }`}
             >
-              Resend Verification Email
+              Resend Verification Email ({countdown}s)
             </button>
           )}
         </form>

@@ -8,12 +8,17 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  const phoneRegex = /^(97|98|96)\d{8}$/;
+  const nameRegex = /^[a-zA-Z\s]+$/;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,21 +27,24 @@ const SignupPage = () => {
     setLoading(true);
 
     // Basic validation
-    if (!email || !password || !phoneNumber || !name || !confirmPassword) {
-      setError("Please fill in all required fields");
-      setLoading(false);
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      setLoading(false);
-      return;
-    }
+    if (!email || !password || !phoneNumber || !name || !confirmPassword)
+      return setError("Please fill in all required fields"), setLoading(false);
+
+    if (password !== confirmPassword)
+      return setError("Passwords do not match"), setLoading(false);
+
+    if (password.length < 6)
+      return setError("Password must be at least 6 characters long"), setLoading(false);
+
+    if (!emailRegex.test(email))
+      return setError("Please enter a valid email address"), setLoading(false);
+
+    if (!phoneRegex.test(phoneNumber))
+      return setError("Please enter a valid phone number"), setLoading(false);
+
+    if (!nameRegex.test(name.trim()))
+      return setError("Enter a valid name"), setLoading(false);
+
 
     try {
       await register(email, password, phoneNumber, name);
@@ -44,7 +52,7 @@ const SignupPage = () => {
       navigate("/login", { state: { email } });
     } catch (err) {
       console.error("Error:", err);
-      setError(err.message || "Registration failed");
+      setError(err.message || "Email already in use");
     } finally {
       setLoading(false);
     }
@@ -272,11 +280,10 @@ const SignupPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
-            } shadow-lg`}
+            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
+              } shadow-lg`}
           >
             {loading ? (
               <div className="flex items-center justify-center">
