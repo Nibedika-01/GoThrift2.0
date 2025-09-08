@@ -8,11 +8,12 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [passwordShow, setPasswordShow] = useState(false);
+  const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
 
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -44,7 +45,6 @@ const SignupPage = () => {
 
     if (!nameRegex.test(name.trim()))
       return setError("Enter a valid name"), setLoading(false);
-
 
     try {
       await register(email, password, phoneNumber, name);
@@ -94,8 +94,9 @@ const SignupPage = () => {
         {/* Header */}
         <div className="text-center mb-8 relative z-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 008 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-rose-700 mb-2">
@@ -212,7 +213,7 @@ const SignupPage = () => {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={passwordShow ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -224,10 +225,10 @@ const SignupPage = () => {
                 </svg>
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setPasswordShow(!passwordShow)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-rose-400 hover:text-rose-600 transition-colors"
                 >
-                  {showPassword ? (
+                  {passwordShow ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
                     </svg>
@@ -247,7 +248,7 @@ const SignupPage = () => {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={confirmPasswordShow ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -259,10 +260,10 @@ const SignupPage = () => {
                 </svg>
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setConfirmPasswordShow(!confirmPasswordShow)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-rose-400 hover:text-rose-600 transition-colors"
                 >
-                  {showPassword ? (
+                  {confirmPasswordShow ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
                     </svg>

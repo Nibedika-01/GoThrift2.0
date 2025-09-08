@@ -149,15 +149,16 @@ const ViewInventory = () => {
                         <p className="text-center text-rose-700">No products found.</p>
                     ) : (
                         <div className="relative z-10 overflow-x-auto">
-                            <table className="w-full text-sm text-left text-rose-700">
+                            <table className="w-full table-fixed text-sm text-left text-rose-700">
                                 <thead className="text-xs uppercase bg-rose-50 text-rose-600">
                                     <tr>
-                                        <th className="px-4 py-2">Image</th>
-                                        <th className="px-4 py-2">Name</th>
-                                        <th className="px-4 py-2">Price</th>
-                                        <th className="px-4 py-2">Category</th>
-                                        <th className="px-4 py-2">Sold</th>
-                                        <th className="px-4 py-2">Actions</th>
+                                        <th className="px-4 py-2 w-1/6">Image</th>
+                                        <th className="px-4 py-2 w-1/6">Name</th>
+                                        <th className="px-4 py-2 w-1/6">Price</th>
+                                        <th className="px-4 py-2 w-1/6">Size</th>
+                                        <th className="px-4 py-2 w-1/6">Category</th>
+                                        <th className="px-4 py-2 w-1/6">Sold</th>
+                                        <th className="px-4 py-2 w-1/6">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -175,7 +176,7 @@ const ViewInventory = () => {
                                                     <input
                                                         value={editedProduct.name}
                                                         onChange={(e) => handleEditChange("name", e.target.value)}
-                                                        className="border px-2 py-1 rounded"
+                                                        className="w-full border px-2 py-1 rounded"
                                                     />
                                                 ) : (
                                                     prod.name
@@ -187,10 +188,21 @@ const ViewInventory = () => {
                                                         type="number"
                                                         value={editedProduct.price}
                                                         onChange={(e) => handleEditChange("price", e.target.value)}
-                                                        className="border px-2 py-1 rounded"
+                                                        className="w-full border px-2 py-1 rounded"
                                                     />
                                                 ) : (
                                                     `Rs. ${prod.price}`
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                {editMode[prod._id] ? (
+                                                    <input
+                                                        value={editedProduct.sizes}
+                                                        onChange={(e) => handleEditChange("sizes", e.target.value)}
+                                                        className="w-full border px-2 py-1 rounded"
+                                                    />
+                                                ) : (
+                                                    `${prod.sizes}`
                                                 )}
                                             </td>
                                             <td className="px-4 py-2">{prod.category}</td>

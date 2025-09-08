@@ -49,7 +49,7 @@ const AdminDashboard = () => {
                     <div>
                         <div className="flex justify-between items-center mb-8 relative">
                             <button
-                                onClick={() => navigate("/")}
+                                onClick={() => navigate("/home")}
                                 className="p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
                                 title="Go back"
                             >
@@ -130,28 +130,7 @@ const AdminDashboard = () => {
                                             />
                                         </svg>
                                     ),
-                                },
-                                {
-                                    title: "Manage Categories",
-                                    desc: "Add or edit categories",
-                                    link: "/manage-categories",
-                                    icon: (
-                                        <svg
-                                            className="w-6 h-6 text-rose-500 mr-2"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            {/* Example path for a tag or categories icon */}
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M3 10h18M3 6h18M3 14h18"
-                                            />
-                                        </svg>
-                                    ),
-                                },
+                                }
                             ].map((item, idx) => (
                                 <a
                                     key={idx}

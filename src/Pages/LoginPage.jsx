@@ -5,6 +5,7 @@ import AuthContext from "../AuthContext";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -149,8 +150,9 @@ const LoginPage = () => {
         {/* Header */}
         <div className="text-center mb-8 relative z-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 008 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-rose-700 mb-2">
@@ -243,8 +245,8 @@ const LoginPage = () => {
             type="submit"
             disabled={loading}
             className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
               } shadow-lg`}
           >
             {loading ? (
@@ -266,8 +268,8 @@ const LoginPage = () => {
               onClick={handleResendVerification}
               disabled={loading || countdown > 0}
               className={`w-full py-4 rounded-xl font-semibold transition-all duration-200 ${loading || countdown > 0
-                  ? "cursor-not-allowed opacity-50 bg-gray-300 text-gray-500 border-2 border-gray-200"
-                  : "text-rose-600 border-2 border-rose-200 hover:bg-rose-50 bg-white"
+                ? "cursor-not-allowed opacity-50 bg-gray-300 text-gray-500 border-2 border-gray-200"
+                : "text-rose-600 border-2 border-rose-200 hover:bg-rose-50 bg-white"
                 }`}
             >
               {loading ? (
