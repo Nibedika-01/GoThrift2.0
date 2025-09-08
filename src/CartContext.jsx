@@ -10,24 +10,24 @@ export const CartProvider = ({ children }) => {
   //generate or retrive session id
   useEffect(() => {
     let sid = localStorage.getItem('sessionId');
-    if(!sid) {
+    if (!sid) {
       sid = 'sess_' + Math.random().toString(36).slice(2);
       localStorage.setItem('sessionId', sid);
     }
     setSessionId(sid);
   }, []);
 
-// Fetch cart when sessionId is set
+  // Fetch cart when sessionId is set
   useEffect(() => {
     if (sessionId) {
       fetchCart(sessionId);
     }
   }, [sessionId]);
 
-  const fetchCart = async(sid) => {
-    try{
+  const fetchCart = async (sid) => {
+    try {
       const response = await fetch(`http://localhost:5000/api/cart/${sid}`);
-      if(response.ok){
+      if (response.ok) {
         const data = await response.json();
         setCart(
           data.items.map((item) => ({
@@ -43,23 +43,26 @@ export const CartProvider = ({ children }) => {
         );
       }
     }
-    catch(error){
+    catch (error) {
       console.log('Error fetching cart:', error);
     }
   }
 
   const addToCart = async (product) => {
-    try{
+    try {
       const response = await fetch('http://localhost:5000/api/cart', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionId,
-          productId : product.id,
+          productId: product.id,
           quantity: 1,
         }),
       });
-      if(response.ok){
+      if (product.sold) {
+        return res.status(400).json({ message: "This product is already sold." });
+      }
+      if (response.ok) {
         setCart((prevCart) => {
           const existingItem = prevCart.find((item) => item.id === product.id);
           if (existingItem) {
@@ -73,29 +76,30 @@ export const CartProvider = ({ children }) => {
         });
       }
     }
-    catch(error){
-      console.error('Error adding to cart:', error);
+    catch (error) {
+      return res.status(500).json({ message: 'Error adding to cart' });
     }
   };
 
   const removeFromCart = async (productId) => {
-    try{
+    try {
       const response = await fetch(`http://localhost:5000/api/cart/remove`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, productId })
       });
-      if(response.ok){
+      if (response.ok) {
         setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
       }
-    } catch (error){
-      console.error('Error removing from cart:', error);
+    } catch (error) {
+      return res.status(500).json({ message: 'Error removing from cart' });
+
     }
   };
 
   const decreaseQuantity = (id) => {
     setCart((prevCart) =>
-      prevCart.map((item) => item.id === id && item.quantity > 1? {
+      prevCart.map((item) => item.id === id && item.quantity > 1 ? {
         ...item, quantity: item.quantity - 1
       } : item
       ).filter((item) => item.quantity > 0)
@@ -104,8 +108,8 @@ export const CartProvider = ({ children }) => {
 
   const increaseQuantity = (id) => {
     setCart((prevCart) =>
-      prevCart.map((item) => 
-        item.id === id ? {...item, quantity: item.quantity + 1}: item
+      prevCart.map((item) =>
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
       )
     )
   }

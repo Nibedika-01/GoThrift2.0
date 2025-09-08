@@ -83,9 +83,10 @@ const ProductsPage = () => {
         </div>
         <button
           onClick={() => handleAddToCart(product)}
-          className="mt-3 w-full bg-rose-500 text-white py-2 rounded-md hover:bg-rose-600 transition"
+          disabled={product.sold}
+          className={`mt-3 w-full text-white py-2 rounded-md transition ${product.sold ? "bg-gray-400 cursor-not-allowed" : "bg-rose-600 hover:bg-rose-700 cursor-pointer"}`}
         >
-          Add to Cart
+          {product.sold ? "Soldout" : "Add to Cart"}
         </button>
       </div>
     </div>
