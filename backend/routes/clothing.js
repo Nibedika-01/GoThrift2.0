@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer');
+const mongoose = require('mongoose');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const Clothing = require('../models/Clothing');
@@ -85,6 +86,24 @@ router.get('/clothing', async(req, res) => {
   }
 });
 
+// Get a single clothing item by ID
+router.get('/clothing/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+    const clothing = await Clothing.findById(id);
+    if (!clothing) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json(clothing);
+  } catch (error) {
+    console.error('Error fetching clothing by ID:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
 // Update a product
 router.put('/clothing/:id', checkAdmin, async (req, res) => {
   try {

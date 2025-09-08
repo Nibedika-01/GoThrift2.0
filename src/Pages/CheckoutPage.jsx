@@ -68,7 +68,7 @@ const Checkout = () => {
     address: "",
     city: "",
   });
-  // const [amount, setAmount] = useState("");
+  
   const navigate = useNavigate();
   const location = useLocation();
 

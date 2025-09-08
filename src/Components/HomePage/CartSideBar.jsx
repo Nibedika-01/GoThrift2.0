@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import CartContext from '../../CartContext';
 
 const CartSideBar = ({ closeCart }) => {
-  const { cart, removeFromCart, decreaseQuantity, increaseQuantity } = useContext(CartContext);
+  const { cart, removeFromCart, increaseQuantity, decreaseQuantity } = useContext(CartContext);
 
   // Calculate subtotal
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -66,16 +66,18 @@ const CartSideBar = ({ closeCart }) => {
                                   <div className="flex items-center gap-2">
                                     <button
                                       type="button"
+                                      disabled
                                       onClick={() => decreaseQuantity(item.id)}
-                                      className="font-medium text-rose-600 hover:text-rose-500 cursor-pointer"
+                                      className="font-medium text-rose-600 hover:text-rose-500 cursor-not-allowed"
                                     >
                                       -
                                     </button>
                                     <p className="text-rose-500">Qty {item.quantity}</p>
                                     <button
                                       type="button"
+                                      disabled
                                       onClick={() => increaseQuantity(item.id)}
-                                      className="font-medium text-rose-600 hover:text-rose-500 cursor-pointer"
+                                      className="font-medium text-rose-600 hover:text-rose-500 cursor-not-allowed"
                                     >
                                       +
                                     </button>

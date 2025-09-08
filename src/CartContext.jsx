@@ -38,7 +38,7 @@ export const CartProvider = ({ children }) => {
             color: item.product.color,
             category: item.product.category,
             sizes: item.product.sizes,
-            quantity: item.product.quantity,
+            quantity: item.quantity,
           }))
         );
       }
@@ -111,7 +111,7 @@ export const CartProvider = ({ children }) => {
   }
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, decreaseQuantity, sessionId, increaseQuantity }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, sessionId, increaseQuantity, decreaseQuantity }}>
       {children}
     </CartContext.Provider>
   );

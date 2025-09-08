@@ -1,6 +1,6 @@
-import { Transaction } from "./model/Transaction.model.js"; //for saving the ordered data in database
+import { Transaction } from "./model/Transaction.model.js"; 
 
-import { EsewaPaymentGateway, EsewaCheckStatus } from "esewajs"; //we install our package hehe
+import { EsewaPaymentGateway, EsewaCheckStatus } from "esewajs"; 
 
 
 const EsewaInitiatePayment = async (req, res) => {

@@ -16,44 +16,19 @@ const ProductDetailPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!id) {
+      setError('No product ID provided in URL');
+      setLoading(false);
+      return;
+    }
+
     const fetchProduct = async () => {
       try {
-        // First try to fetch individual product
-        let response = await fetch(`http://localhost:5000/api/clothing/${id}`);
-        
+        const response = await fetch(`http://localhost:5000/api/clothing/${id}`);
+        console.log('Response status:', response.status);
         if (!response.ok) {
-          // If individual product endpoint doesn't exist, fetch all products and filter
-          console.log('Individual product endpoint not found, fetching all products...');
-          response = await fetch('http://localhost:5000/api/clothing');
-          
-          if (!response.ok) {
-            throw new Error('Failed to fetch products');
-          }
-          
-          const allProducts = await response.json();
-          const foundProduct = allProducts.find(item => item._id === id);
-          
-          if (!foundProduct) {
-            throw new Error('Product not found');
-          }
-          
-          const mappedProduct = {
-            id: foundProduct._id,
-            name: foundProduct.name,
-            category: foundProduct.category,
-            color: foundProduct.color,
-            price: foundProduct.price,
-            sizes: foundProduct.sizes,
-            image: `http://localhost:5000${foundProduct.image}`,
-            description: foundProduct.description || "Beautiful and comfortable clothing piece that perfectly fits your style. Made with high-quality materials and designed for everyday wear.",
-          };
-          setProduct(mappedProduct);
-          setSelectedSize(mappedProduct.sizes[0] || '');
-          setLoading(false);
-          return;
+          throw new Error(`Failed to fetch product: ${response.statusText}`);
         }
-        
-        // If individual product endpoint exists
         const data = await response.json();
         const mappedProduct = {
           id: data._id,
@@ -83,13 +58,13 @@ const ProductDetailPage = () => {
       alert('Please select a size');
       return;
     }
-    
+
     const productWithDetails = {
       ...product,
       selectedSize,
       quantity,
     };
-    
+
     addToCart(productWithDetails);
     setShowMessage(true);
     setTimeout(() => setShowMessage(false), 2000);
@@ -117,7 +92,7 @@ const ProductDetailPage = () => {
         <div className="flex flex-col justify-center items-center min-h-screen">
           <div className="text-rose-600 text-xl mb-4">Product not found</div>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
             className="bg-rose-500 text-white px-6 py-2 rounded-md hover:bg-rose-600 transition"
           >
             Back to Home
@@ -130,7 +105,7 @@ const ProductDetailPage = () => {
   return (
     <div className="bg-pink-50 min-h-screen pt-16">
       <NavHome />
-      
+
       {/* Message Display */}
       {showMessage && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black px-4 py-2 z-50 rounded-md shadow-lg transition-opacity duration-300">
@@ -155,7 +130,7 @@ const ProductDetailPage = () => {
           {/* Product Info */}
           <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
             <h1 className="text-3xl font-bold tracking-tight text-rose-700">{product.name}</h1>
-            
+
             <div className="mt-3">
               <p className="text-3xl tracking-tight text-rose-600">Rs. {product.price}</p>
             </div>
@@ -191,11 +166,10 @@ const ProductDetailPage = () => {
                       key={size}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition ${
-                        selectedSize === size
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition ${selectedSize === size
                           ? 'bg-rose-500 text-white'
                           : 'bg-white text-rose-600 border border-rose-300 hover:bg-rose-50'
-                      }`}
+                        }`}
                     >
                       {size}
                     </button>
@@ -243,7 +217,7 @@ const ProductDetailPage = () => {
                 </button>
               </div>
             </form>
-            
+
           </div>
         </div>
       </div>
