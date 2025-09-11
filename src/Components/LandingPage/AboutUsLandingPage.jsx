@@ -55,7 +55,7 @@ const AboutUsLandingPage = () => {
     <div
       id="aboutUs"
       ref={sectionRef}
-      className="w-full mx-auto bg-[#f5f2eb] px-4 space-y-6"
+      className="w-full mx-auto bg-[#f5f2eb] px-4 space-y-6 scroll-mt-20"
     >
       <div className="flex flex-col items-center space-y-4 text-center">
         <h2 className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-6xl text-rose-700">

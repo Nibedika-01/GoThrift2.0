@@ -92,7 +92,7 @@ const UserProfileSidebar = ({ closeProfile }) => {
                         onClick={() => {
                           logout();
                           closeProfile();
-                          navigate('/'); // Navigate to landing page after logout
+                          navigate('/home'); 
                         }}
                         className="flex items-center justify-center rounded-md border border-transparent bg-rose-200 px-6 py-3 text-base font-medium text-rose-700 hover:bg-rose-300 w-full"
                       >

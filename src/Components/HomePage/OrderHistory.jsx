@@ -4,6 +4,7 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
   const [orderData, setOrderData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
 
   // Fetch orders from database
   const token = localStorage.getItem('userToken');
@@ -23,7 +24,7 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
         }
 
         const orders = await response.json();
-        console.log('Orders response:', orders);
+        console.log('Orders response:', JSON.stringify(orders, null, 2));
         setOrderData(orders);
       } catch (err) {
         setError(err.message);
@@ -37,8 +38,28 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
       fetchOrders();
     } else {
       setLoading(false);
+      console.warn('No userId provided, skipping fetch.');
     }
   }, [userId, token]);
+
+  // Function to remove an order from the UI only
+  const deleteOrder = (orderId) => {
+    console.log('Removing order from history:', orderId); // Debug orderId
+
+    try {
+      // Update state to remove the order from UI
+      setOrderData(prevOrders => prevOrders.filter(order => order._id !== orderId));
+      setMessage({ type: 'success', text: 'Order removed from history' });
+      console.log('Order removed from history:', orderId);
+
+      // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err) {
+      setMessage({ type: 'error', text: `Failed to remove order: ${err.message}` });
+      console.error('Error removing order:', err);
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
 
   // Loading state
   if (loading) {
@@ -114,6 +135,13 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
                     </div>
                   </div>
 
+                  {/* Message Display */}
+                  {message && (
+                    <div className={`mt-4 p-4 rounded-md ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                      <p className="text-sm">{message.text}</p>
+                    </div>
+                  )}
+
                   <div className="mt-8">
                     <div className="flow-root">
                       {error ? (
@@ -140,41 +168,113 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
                         <ul role="list" className="-my-6 divide-y divide-gray-200">
                           {orderData.map((order) => (
                             <li key={order._id} className="flex py-6">
-                              <div className="flex-1 flex flex-col">
-                                <div className="flex justify-between text-base font-medium text-rose-700">
-                                  <h3>Order #{order._id}</h3>
+                              {/* Product Images */}
+                              <div className="flex-shrink-0 mr-4">
+                                <div className={`grid gap-2 ${order.items.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} max-w-[128px]`}>
+                                  {order.items.map((item, index) => {
+                                    // Try multiple possible image fields
+                                    const imageUrl = item?.product?.image || item?.image || item?.productImage || item?.imageUrl;
+                                    console.log(`Item ${index} image data:`, { item, imageUrl });
+
+                                    const fullImageUrl = imageUrl
+                                      ? imageUrl.startsWith('http')
+                                        ? imageUrl
+                                        : `http://localhost:5000${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
+                                      : null;
+                                    console.log(`Item ${index} fullImageUrl:`, fullImageUrl);
+
+                                    const imageSize = order.items.length > 1 ? 'h-12 w-12' : 'h-16 w-16';
+
+                                    return (
+                                      <div key={index} className={`${imageSize} flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 relative`}>
+                                        {fullImageUrl ? (
+                                          <img
+                                            src={fullImageUrl}
+                                            alt={item?.product?.name || item?.name || item?.productName || 'Product'}
+                                            className="h-full w-full object-cover object-center"
+                                            onError={(e) => {
+                                              console.error(`Image failed to load for item ${index}:`, fullImageUrl);
+                                              e.target.style.display = 'none';
+                                              e.target.nextSibling.style.display = 'flex';
+                                            }}
+                                            onLoad={() => {
+                                              console.log(`Image loaded successfully for item ${index}:`, fullImageUrl);
+                                            }}
+                                          />
+                                        ) : (
+                                          <div className="h-full w-full bg-rose-50 flex items-center justify-center">
+                                            <span className="text-xs text-rose-500">No Image</span>
+                                          </div>
+                                        )}
+                                        {/* Fallback placeholder */}
+                                        <div className="h-full w-full bg-rose-50 flex items-center justify-center absolute top-0 left-0" style={{ display: fullImageUrl ? 'none' : 'flex' }}>
+                                          <svg className="h-8 w-8 text-rose-300" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
                                 </div>
-                                <p className="mt-1 text-sm text-rose-500">
-                                  Date: {new Date(order.date || order.createdAt).toLocaleDateString()}
-                                </p>
-                                <p className="mt-1 text-sm text-rose-500">
-                                  Total: Rs.{" "}
-                                  {order.items
-                                    ? order.items.reduce((sum, item) => sum + item.totalAmount, 0)
-                                    : "00"}
-                                </p>
-                                <p className="mt-1 text-sm text-rose-500">
-                                  Status: <span className={`font-medium ${getStatusColor(order.status)}`}>
-                                    {order.status}
-                                  </span>
-                                </p>
-                                {order.items && order.items.length > 0 && (
-                                  <div className="mt-2">
-                                    <p className="text-xs text-rose-400">Items: {order.items.length}</p>
-                                    <div className="mt-1 flex flex-wrap gap-1">
-                                      {order.items.slice(0, 3).map((item, index) => (
-                                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700">
-                                          {item.name || item.productName} {item.quantity > 1 && `(${item.quantity})`}
+                              </div>
+
+                              <div className="flex-1 flex">
+                                {/* Order Details */}
+                                <div className="flex-1 flex flex-col">
+                                  <div className="flex justify-between text-base font-medium text-rose-700">
+                                    <h3>
+                                      {order.items && order.items.length > 0 ? 
+                                        order.items[0].name || order.items[0].productName || 'Order' :
+                                        'Order'
+                                      }
+                                      {order.items && order.items.length > 1 && 
+                                        <span className="text-sm font-normal text-rose-500">
+                                          {` +${order.items.length - 1} more items`}
                                         </span>
-                                      ))}
-                                      {order.items.length > 3 && (
-                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700">
-                                          +{order.items.length - 3} more
-                                        </span>
-                                      )}
-                                    </div>
+                                      }
+                                    </h3>
                                   </div>
-                                )}
+                                  <p className="mt-1 text-sm text-rose-500">
+                                    Date: {new Date(order.date || order.createdAt).toLocaleDateString()}
+                                  </p>
+                                  <p className="mt-1 text-sm text-rose-500">
+                                    Total: Rs.{" "}
+                                    {order.items
+                                      ? order.items.reduce((sum, item) => sum + (item.totalAmount || 0), 0)
+                                      : "00"}
+                                  </p>
+                                  <p className="mt-1 text-sm text-rose-500">
+                                    Status: <span className={`font-medium ${getStatusColor(order.status)}`}>
+                                      {order.status || 'Unknown'}
+                                    </span>
+                                  </p>
+                                  {order.items && order.items.length > 0 && (
+                                    <div className="mt-2">
+                                      <p className="text-xs text-rose-400">Items: {order.items.length}</p>
+                                      <div className="mt-1 flex flex-wrap gap-1">
+                                        {order.items.slice(0, 3).map((item, index) => (
+                                          <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700">
+                                            {item.product?.name || item.name || item.productName || 'Product'} {item.quantity > 1 && `(${item.quantity})`}
+                                          </span>
+                                        ))}
+                                        {order.items.length > 3 && (
+                                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700">
+                                            +{order.items.length - 3} more
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                {/* Remove Button */}
+                                <div className="flex items-start ml-4">
+                                  <button
+                                    onClick={() => deleteOrder(order._id)}
+                                    className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
                               </div>
                             </li>
                           ))}

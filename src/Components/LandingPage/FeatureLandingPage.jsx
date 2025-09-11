@@ -3,6 +3,8 @@ import secure from '../../assets/Images/secure_icon.png';
 import bag from '../../assets/Images/affordable_icon.png';
 import cart from '../../assets/Images/cart_icon.png';
 import mobile from '../../assets/Images/mobile_icon.png';
+import upload from '../../assets/Images/upload.png';
+import orders from '../../assets/Images/order.png';
 
 const FeatureLandingPage = () => {
   const sectionRef = useRef(null);
@@ -49,11 +51,10 @@ const FeatureLandingPage = () => {
         <div className="grid justify-center gap-4 sm:grid-cols-2 md:grid-cols-3">
           {/* Feature 1 */}
           <div
-            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${
-              isVisible
+            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${isVisible
                 ? 'translate-y-0 scale-100 opacity-100 animate-bounce-once'
                 : 'translate-y-16 scale-90 opacity-0'
-            }`}
+              }`}
             style={{ transitionDelay: '0ms' }}
           >
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
@@ -71,11 +72,10 @@ const FeatureLandingPage = () => {
 
           {/* Feature 2 */}
           <div
-            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${
-              isVisible
+            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${isVisible
                 ? 'translate-y-0 scale-100 opacity-100 animate-bounce-once'
                 : 'translate-y-16 scale-90 opacity-0'
-            }`}
+              }`}
             style={{ transitionDelay: '150ms' }}
           >
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
@@ -93,11 +93,10 @@ const FeatureLandingPage = () => {
 
           {/* Feature 3 */}
           <div
-            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${
-              isVisible
+            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${isVisible
                 ? 'translate-y-0 scale-100 opacity-100 animate-bounce-once'
                 : 'translate-y-16 scale-90 opacity-0'
-            }`}
+              }`}
             style={{ transitionDelay: '300ms' }}
           >
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
@@ -113,11 +112,10 @@ const FeatureLandingPage = () => {
 
           {/* Feature 4 */}
           <div
-            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${
-              isVisible
+            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${isVisible
                 ? 'translate-y-0 scale-100 opacity-100 animate-bounce-once'
                 : 'translate-y-16 scale-90 opacity-0'
-            }`}
+              }`}
             style={{ transitionDelay: '450ms' }}
           >
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
@@ -133,45 +131,43 @@ const FeatureLandingPage = () => {
             </div>
           </div>
 
-          {/* Feature 5 */}
+          {/* Feature 5 - Easy Upload */}
           <div
-            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${
-              isVisible
+            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${isVisible
                 ? 'translate-y-0 scale-100 opacity-100 animate-bounce-once'
                 : 'translate-y-16 scale-90 opacity-0'
-            }`}
+              }`}
             style={{ transitionDelay: '600ms' }}
           >
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
               <div className="h-12 w-12">
-                <img src={secure} alt="Secure Icon" className="h-12 w-12" />
+                <img src={upload} alt="Upload Icon" className="h-12 w-12" />
               </div>
               <div className="space-y-2">
-                <h3 className="font-bold text-rose-700">Authentication</h3>
+                <h3 className="font-bold text-rose-700">Easy Upload</h3>
                 <p className="text-sm text-rose-700">
-                  Authentication using NextAuth.js and middlewares.
+                  Quickly upload thrift items with pictures, price, and details.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Feature 6 */}
+          {/* Feature 6 - Order Management */}
           <div
-            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${
-              isVisible
+            className={`bg-rose-50 relative overflow-hidden rounded-lg border select-none hover:shadow hover:shadow-teal-200 p-2 transform transition-all duration-700 ease-out ${isVisible
                 ? 'translate-y-0 scale-100 opacity-100 animate-bounce-once'
                 : 'translate-y-16 scale-90 opacity-0'
-            }`}
+              }`}
             style={{ transitionDelay: '750ms' }}
           >
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
               <div className="h-12 w-12">
-                <img src={bag} alt="Bag Icon" className="h-12 w-12" />
+                <img src={orders} alt="Orders Icon" className="h-12 w-12" />
               </div>
               <div className="space-y-2">
-                <h3 className="font-bold text-rose-700">Subscriptions</h3>
+                <h3 className="font-bold text-rose-700">Order Management</h3>
                 <p className="text-sm text-rose-700">
-                  Free and paid subscriptions using Stripe.
+                  Track, update, and manage customer orders with ease.
                 </p>
               </div>
             </div>
