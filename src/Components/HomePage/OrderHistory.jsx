@@ -172,8 +172,7 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
                               <div className="flex-shrink-0 mr-4">
                                 <div className={`grid gap-2 ${order.items.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} max-w-[128px]`}>
                                   {order.items.map((item, index) => {
-                                    // Try multiple possible image fields
-                                    const imageUrl = item?.product?.image || item?.image || item?.productImage || item?.imageUrl;
+                                    const imageUrl = item?.product?.image;
                                     console.log(`Item ${index} image data:`, { item, imageUrl });
 
                                     const fullImageUrl = imageUrl
@@ -223,11 +222,11 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
                                 <div className="flex-1 flex flex-col">
                                   <div className="flex justify-between text-base font-medium text-rose-700">
                                     <h3>
-                                      {order.items && order.items.length > 0 ? 
+                                      {order.items && order.items.length > 0 ?
                                         order.items[0].name || order.items[0].productName || 'Order' :
                                         'Order'
                                       }
-                                      {order.items && order.items.length > 1 && 
+                                      {order.items && order.items.length > 1 &&
                                         <span className="text-sm font-normal text-rose-500">
                                           {` +${order.items.length - 1} more items`}
                                         </span>

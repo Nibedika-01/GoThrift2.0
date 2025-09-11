@@ -24,7 +24,7 @@ const ViewOrders = () => {
     setTimeout(() => setMessage({ text: "", type: "" }), 3000);
   };
 
-  // Fetch orders for user/admin
+  // Fetch orders for user
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -37,15 +37,6 @@ const ViewOrders = () => {
       });
 
       const data = await res.json();
-      // console.log("Others data:", data);
-      // data.forEach((order, index) => {
-      //   console.log(`Order ${index + 1}:`, {
-      //     id: order._id,
-      //     shippingInfo: order.shippingInfo,
-      //     hasFirstName: !!order.shippingInfo?.firstName,
-      //     hasLastName: !!order.shippingInfo?.lastName,
-      //   });
-      // });
 
       if (res.ok) {
         setOrders(data);
@@ -237,9 +228,9 @@ const ViewOrders = () => {
               <table className="w-full text-sm text-left text-rose-700">
                 <thead className="text-xs text-rose-600 uppercase bg-rose-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3">
+                    {/* <th scope="col" className="px-6 py-3">
                       Order ID
-                    </th>
+                    </th> */}
                     <th scope="col" className="px-6 py-3">
                       Customer Name
                     </th>
@@ -266,7 +257,7 @@ const ViewOrders = () => {
                       key={order._id}
                       className="table-row-hover transition-all duration-200"
                     >
-                      <td className="px-6 py-4">{order._id}</td>
+                      {/* <td className="px-6 py-4">{order._id}</td> */}
                       <td className="px-6 py-4">
                         {order.shippingInfo?.firstName + " " + order.shippingInfo?.lastName || "N/A"}
                       </td>
@@ -295,12 +286,22 @@ const ViewOrders = () => {
                           onClick={() =>
                             handleUpdateStatus(order._id, statusUpdates[order._id] || order.status || "Pending")
                           }
-                          className="bg-rose-500 text-white px-2 py-1 rounded-md text-sm hover:bg-rose-600 "
+                          className="bg-rose-500 text-white px-2 py-1 rounded-md text-sm hover:bg-rose-600 flex items-center justify-center"
                           disabled={!statusUpdates[order._id] || statusUpdates[order._id] === order.status}
                           title="Update Status"
                         >
-                          Update
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
                         </button>
+
                       </td>
                       <td className="px-6 py-4">
                         <button
