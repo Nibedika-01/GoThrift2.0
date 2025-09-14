@@ -51,6 +51,13 @@ const ViewOrders = () => {
     }
   };
 
+  // Get product names from order items
+  const getProductNames = (items) => {
+    if(!items || items.length === 0) return "N/A";
+
+    return items.map(item => `${item.product?.name || "Unknown"}`).join(", ");
+  }
+
   //update status
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
@@ -270,8 +277,9 @@ const ViewOrders = () => {
                           ? order.items.reduce((sum, item) => sum + item.totalAmount, 0) : "N/A"}
                       </td>
                       <td className="px-6 py-4">
-                        {order.items[0]?.product?.name || "N/A"}
-                      </td>
+                        <div className="max-w-[200px]">
+                          {getProductNames(order.items)}
+                        </div>                      </td>
                       <td className="px-6 py-4 flex gap-2">
                         <select
                           value={statusUpdates[order._id] || order.status || "Pending"}

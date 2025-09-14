@@ -179,13 +179,13 @@ const SellClothesPage = () => {
 
           <div className="text-sm sm:text-base text-gray-600 space-y-2 relative z-10 max-w-md mx-auto">
             <p className="flex items-center justify-center">
-              <span className="mr-2">📱</span> Send us photos of your clothes or we'll arrange a meeting
+               Send us photos of your clothes or we'll arrange a meeting
             </p>
             <p className="flex items-center justify-center">
-              <span className="mr-2">✅</span> We’ll verify quality and condition
+               We’ll verify quality and condition
             </p>
             <p className="flex items-center justify-center">
-              <span className="mr-2">💰</span> Start earning from your wardrobe today!
+               Start earning from your wardrobe today!
             </p>
           </div>
         </div>
