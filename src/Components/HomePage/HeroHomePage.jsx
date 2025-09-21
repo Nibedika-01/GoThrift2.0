@@ -4,13 +4,14 @@ import CartContext from '../../CartContext';
 import NavHome from './NavHomePage';
 
 const ProductsPage = () => {
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, cart = [] } = useContext(CartContext); // Use cart from your context
   const [recentSlideIndex, setRecentSlideIndex] = useState(0);
   const [topsSlideIndex, setTopsSlideIndex] = useState(0);
   const [bottomsSlideIndex, setBottomsSlideIndex] = useState(0);
   const [dressesSlideIndex, setDressesSlideIndex] = useState(0);
   const [accessoriesSlideIndex, setAccessoriesSlideIndex] = useState(0);
   const [showMessage, setShowMessage] = useState(false);
+  const [messageText, setMessageText] = useState(''); // Add state for message text
   const [products, setProducts] = useState({
     recent: [],
     tops: [],
@@ -50,47 +51,72 @@ const ProductsPage = () => {
   }, []);
 
   const handleAddToCart = (product) => {
-    addToCart(product);
-    setShowMessage(true);
-    setTimeout(() => setShowMessage(false), 2000);
+    const existingProduct = cart && cart.find(item => item.id === product.id);
+    
+    if (existingProduct) {
+      setMessageText('Product already added to cart!');
+      setShowMessage(true);
+      setTimeout(() => setShowMessage(false), 2000);
+    } else {
+      addToCart(product);
+      setMessageText('Added to cart successfully!');
+      setShowMessage(true);
+      setTimeout(() => setShowMessage(false), 2000);
+    }
   };
 
-  const ProductCard = ({ product }) => (
-    <div className="group relative bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
-      <div className="relative">
-        <Link to={`/products/${product._id}`}>
-          <img
-            src={product.image}
-            alt={product.name}
-            className="aspect-square w-full rounded-lg bg-rose-100 object-contain group-hover:opacity-80 lg:aspect-auto lg:h-80"
-          />
-        </Link>
-      </div>
-      <div className="mt-4">
-        <h3 className="text-sm text-rose-600 font-medium flex items-center gap-2">
-          <Link to={`/products/${product._id}`}>{product.name}</Link>
-
-          {product.sold && (
-            <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shadow-sm">
-              Sold
-            </span>
-          )}
-        </h3>
-        <p className="mt-1 text-sm text-rose-400">{product.color}</p>
-        <div className="mt-2 flex items-center justify-between">
-          <p className="text-sm font-semibold text-rose-500">Rs. {product.price}</p>
-          <p className="text-sm text-rose-400">{product.sizes.join(', ')}</p>
+  const ProductCard = ({ product }) => {
+    const isInCart = cart && cart.some(item => item.id === product.id);
+    
+    return (
+      <div className="group relative bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
+        <div className="relative">
+          <Link >
+            <img
+              src={product.image}
+              alt={product.name}
+              className="aspect-square w-full rounded-lg bg-rose-100 object-contain group-hover:opacity-80 lg:aspect-auto lg:h-80"
+            />
+          </Link>
         </div>
-        <button
-          onClick={() => handleAddToCart(product)}
-          disabled={product.sold}
-          className={`mt-3 w-full text-white py-2 rounded-md transition ${product.sold ? "bg-gray-400 cursor-not-allowed" : "bg-rose-600 hover:bg-rose-700 cursor-pointer"}`}
-        >
-          {product.sold ? "Soldout" : "Add to Cart"}
-        </button>
+        <div className="mt-4">
+          <h3 className="text-sm text-rose-600 font-medium flex items-center gap-2">
+            <Link to={`/products/${product._id}`}>{product.name}</Link>
+
+            {product.sold && (
+              <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shadow-sm">
+                Sold
+              </span>
+            )}
+            
+            {isInCart && !product.sold && (
+              <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shadow-sm">
+                In Cart
+              </span>
+            )}
+          </h3>
+          <p className="mt-1 text-sm text-rose-400">{product.color}</p>
+          <div className="mt-2 flex items-center justify-between">
+            <p className="text-sm font-semibold text-rose-500">Rs. {product.price}</p>
+            <p className="text-sm text-rose-400">{product.sizes.join(', ')}</p>
+          </div>
+          <button
+            onClick={() => handleAddToCart(product)}
+            disabled={product.sold}
+            className={`mt-3 w-full text-white py-2 rounded-md transition ${
+              product.sold 
+                ? "bg-gray-400 cursor-not-allowed" 
+                : isInCart 
+                ? "bg-green-600 hover:bg-green-700 cursor-pointer"
+                : "bg-rose-600 hover:bg-rose-700 cursor-pointer"
+            }`}
+          >
+            {product.sold ? "Soldout" : isInCart ? "Already in Cart" : "Add to Cart"}
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const ProductSlider = ({ products, slideIndex, setSlideIndex }) => {
     const productsPerSlide = 4;
@@ -146,8 +172,10 @@ const ProductsPage = () => {
       <NavHome />
       {/* Message Display */}
       {showMessage && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-300 text-black px-4 py-2 z-50 rounded-md shadow-lg transition-opacity duration-300">
-          Added to cart successfully!
+        <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-2 z-50 rounded-md shadow-lg transition-opacity duration-300 ${
+          messageText.includes('already') ? 'bg-orange-300 text-orange-800' : 'bg-gray-300 text-black'
+        }`}>
+          {messageText}
         </div>
       )}
       <div id="recent" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">

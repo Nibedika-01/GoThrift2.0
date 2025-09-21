@@ -1,4 +1,3 @@
-// src/CartContext.js
 import { createContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
@@ -50,6 +49,18 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (product) => {
     try {
+      if (product.sold) {
+        console.error("This product is already sold.");
+        return;
+      }
+
+      // Check if item already exists in local cart (for thrift store - prevent duplicates)
+      const existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        console.log("Product already in cart");
+        return; // Don't add duplicate items for thrift store
+      }
+
       const response = await fetch('http://localhost:5000/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -59,25 +70,14 @@ export const CartProvider = ({ children }) => {
           quantity: 1,
         }),
       });
-      if (product.sold) {
-        return res.status(400).json({ message: "This product is already sold." });
-      }
+
       if (response.ok) {
-        setCart((prevCart) => {
-          const existingItem = prevCart.find((item) => item.id === product.id);
-          if (existingItem) {
-            return prevCart.map((item) =>
-              item.id === product.id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            );
-          }
-          return [...prevCart, { ...product, quantity: 1 }];
-        });
+        // For thrift store: always add new item, never increase quantity
+        setCart((prevCart) => [...prevCart, { ...product, quantity: 1 }]);
       }
     }
     catch (error) {
-      return res.status(500).json({ message: 'Error adding to cart' });
+      console.error('Error adding to cart:', error);
     }
   };
 
@@ -92,11 +92,12 @@ export const CartProvider = ({ children }) => {
         setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
       }
     } catch (error) {
-      return res.status(500).json({ message: 'Error removing from cart' });
-
+      console.error('Error removing from cart:', error);
     }
   };
 
+  // For thrift store, these quantity functions might not be needed
+  // but keeping them for compatibility with existing code
   const decreaseQuantity = (id) => {
     setCart((prevCart) =>
       prevCart.map((item) => item.id === id && item.quantity > 1 ? {
@@ -107,15 +108,21 @@ export const CartProvider = ({ children }) => {
   }
 
   const increaseQuantity = (id) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    )
+    // For thrift store: don't allow quantity increase beyond 1
+    // since each item is unique
+    console.log("Cannot increase quantity - this is a thrift store item");
+    return;
   }
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, sessionId, increaseQuantity, decreaseQuantity }}>
+    <CartContext.Provider value={{ 
+      cart, 
+      addToCart, 
+      removeFromCart, 
+      sessionId, 
+      increaseQuantity, 
+      decreaseQuantity 
+    }}>
       {children}
     </CartContext.Provider>
   );
