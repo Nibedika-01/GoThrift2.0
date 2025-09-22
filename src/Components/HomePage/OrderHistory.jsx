@@ -223,14 +223,10 @@ const OrderHistory = ({ closeOrderHistory, userId }) => {
                                   <div className="flex justify-between text-base font-medium text-rose-700">
                                     <h3>
                                       {order.items && order.items.length > 0 ?
-                                        order.items[0].name || order.items[0].productName || 'Order' :
+                                        order.items[0].name || order.items[0].productNam :
                                         'Order'
                                       }
-                                      {order.items && order.items.length > 1 &&
-                                        <span className="text-sm font-normal text-rose-500">
-                                          {` +${order.items.length - 1} more items`}
-                                        </span>
-                                      }
+                                     
                                     </h3>
                                   </div>
                                   <p className="mt-1 text-sm text-rose-500">
