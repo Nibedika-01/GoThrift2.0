@@ -10,7 +10,6 @@ const SignupPage = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [passwordShow, setPasswordShow] = useState(false);
   const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
-
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,30 +27,48 @@ const SignupPage = () => {
     setLoading(true);
 
     // Basic validation
-    if (!email || !password || !phoneNumber || !name || !confirmPassword)
-      return setError("Please fill in all required fields"), setLoading(false);
+    if (!email || !password || !phoneNumber || !name || !confirmPassword) {
+      setError("Please fill in all required fields");
+      setLoading(false);
+      return;
+    }
 
-    if (password !== confirmPassword)
-      return setError("Passwords do not match"), setLoading(false);
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
 
-    if (password.length < 6)
-      return setError("Password must be at least 6 characters long"), setLoading(false);
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      setLoading(false);
+      return;
+    }
 
-    if (!emailRegex.test(email))
-      return setError("Please enter a valid email address"), setLoading(false);
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
 
-    if (!phoneRegex.test(phoneNumber))
-      return setError("Please enter a valid phone number"), setLoading(false);
+    if (!phoneRegex.test(phoneNumber)) {
+      setError("Please enter a valid phone number");
+      setLoading(false);
+      return;
+    }
 
-    if (!nameRegex.test(name.trim()))
-      return setError("Enter a valid name"), setLoading(false);
+    if (!nameRegex.test(name.trim())) {
+      setError("Enter a valid name");
+      setLoading(false);
+      return;
+    }
 
     try {
       await register(email, password, phoneNumber, name);
       setSuccessMessage("Registration successful! Please check your email to verify your account.");
-      navigate("/login", { state: { email } });
+      navigate("/verify-email", { state: { email } });
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Registration error:", err);
       setError(err.message || "Email already in use");
     } finally {
       setLoading(false);
@@ -65,11 +82,9 @@ const SignupPage = () => {
   return (
     <div className="bg-gradient-to-br from-pink-50 to-rose-100 min-h-screen flex items-center justify-center p-5 px-4">
       <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden">
-        {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-32 h-32 bg-rose-200 rounded-full -translate-x-16 -translate-y-16 opacity-50"></div>
         <div className="absolute bottom-0 right-0 w-24 h-24 bg-pink-200 rounded-full translate-x-12 translate-y-12 opacity-50"></div>
 
-        {/* Back button */}
         <button
           onClick={() => navigate("/home")}
           className="p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
@@ -80,7 +95,6 @@ const SignupPage = () => {
           </svg>
         </button>
 
-        {/* Admin Login Button */}
         <button
           onClick={handleAdminLogin}
           className="absolute top-4 right-4 p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
@@ -91,23 +105,17 @@ const SignupPage = () => {
           </svg>
         </button>
 
-        {/* Header */}
         <div className="text-center mb-8 relative z-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-rose-700 mb-2">
-            Join Us Today
-          </h2>
-          <p className="text-rose-500 text-sm">
-            Create your new account
-          </p>
+          <h2 className="text-3xl font-bold text-rose-700 mb-2">Join Us Today</h2>
+          <p className="text-rose-500 text-sm">Create your new account</p>
         </div>
 
-        {/* Success Message */}
         {successMessage && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center mb-6">
             <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +125,6 @@ const SignupPage = () => {
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center mb-6">
             <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,13 +134,10 @@ const SignupPage = () => {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-rose-700 mb-2">
-                Email Address
-              </label>
+              <label className="block text-sm font-semibold text-rose-700 mb-2">Email Address</label>
               <div className="relative">
                 <input
                   type="email"
@@ -150,9 +154,7 @@ const SignupPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-rose-700 mb-2">
-                Name
-              </label>
+              <label className="block text-sm font-semibold text-rose-700 mb-2">Name</label>
               <div className="relative">
                 <input
                   type="text"
@@ -162,26 +164,14 @@ const SignupPage = () => {
                   className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
                   placeholder="Enter your name"
                 />
-                <svg
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5.121 17.804A9 9 0 0112 15a9 9 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
+                <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A9 9 0 0112 15a9 9 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-rose-700 mb-2">
-                Phone Number
-              </label>
+              <label className="block text-sm font-semibold text-rose-700 mb-2">Phone Number</label>
               <div className="relative">
                 <input
                   type="tel"
@@ -191,26 +181,14 @@ const SignupPage = () => {
                   className="w-full p-4 pl-12 rounded-xl border-2 border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-200 bg-rose-50"
                   placeholder="Enter your number"
                 />
-                <svg
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
+                <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-rose-700 mb-2">
-                Password
-              </label>
+              <label className="block text-sm font-semibold text-rose-700 mb-2">Password</label>
               <div className="relative">
                 <input
                   type={passwordShow ? "text" : "password"}
@@ -243,9 +221,7 @@ const SignupPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-rose-700 mb-2">
-                Confirm Password
-              </label>
+              <label className="block text-sm font-semibold text-rose-700 mb-2">Confirm Password</label>
               <div className="relative">
                 <input
                   type={confirmPasswordShow ? "text" : "password"}
@@ -281,16 +257,21 @@ const SignupPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
-              } shadow-lg`}
+            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
+            } shadow-lg`}
           >
             {loading ? (
               <div className="flex items-center justify-center">
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
                 </svg>
                 Processing...
               </div>
@@ -300,16 +281,13 @@ const SignupPage = () => {
           </button>
         </form>
 
-        {/* Toggle to login */}
         <div className="mt-5 text-center relative z-10">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-rose-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-rose-500">
-                Already have an account?
-              </span>
+              <span className="px-4 bg-white text-rose-500">Already have an account?</span>
             </div>
           </div>
           <button
@@ -319,7 +297,6 @@ const SignupPage = () => {
             Sign in instead
           </button>
 
-          {/* Admin Login Button */}
           <div className="mt-4">
             <button
               onClick={handleAdminLogin}

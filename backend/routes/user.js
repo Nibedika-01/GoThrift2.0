@@ -6,6 +6,9 @@ const User = require('../models/User');
 const { userMiddleware } = require('./auth');
 const sendEmail = require('../utils/sendEmail');
 
+const generateVerificationCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+}
 
 router.get('/user', userMiddleware, async (req, res) => {
   try {
@@ -37,8 +40,8 @@ router.post('/user/register', async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
     }
-
     const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const verificationCode = generateVerificationCode(); // Generate 6-digit code
 
     const user = new User({
       email,
@@ -47,24 +50,24 @@ router.post('/user/register', async (req, res) => {
       phoneNumber,
       name,
       verificationToken,
-      verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000,
+      verificationCode, // Save the 6-digit code
+      verificationCodeExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
     });
 
     await user.save();
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    // Try to send email, but don't fail registration if email fails
+    // Send verification email
     try {
-      const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
       const emailContent = `
         <h2>Email Verification - GoThrift</h2>
-        <p>Please verify your email by clicking the link below to access all features:</p>
-        <a href="${verificationLink}">Verify Email</a>
-        <p>This link will expire in 24 hours.</p>
+        <p>Your verification code is: <strong>${verificationCode}</strong></p>
+        <p>Please enter this code on the verification page to complete the process.</p>
+        <p>This code will expire in 24 hours.</p>
+        <p>If you didn't request this, please ignore this email.</p>
       `;
-
-      await sendEmail(email, "Verify Your Email - GoThrift", emailContent);
+      await sendEmail(email, 'Verify Your Email - GoThrift', emailContent);
 
       res.status(201).json({
         token,
@@ -74,15 +77,12 @@ router.post('/user/register', async (req, res) => {
           email: user.email,
           phoneNumber: user.phoneNumber,
           name: user.name,
-          isVerified: user.isVerified
+          isVerified: user.isVerified,
         },
-        message: "User registered successfully. Please check your email to verify."
+        message: 'User registered successfully. Please check your email to verify.',
       });
-
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError);
-
-      // Still return success, but with a different message
       res.status(201).json({
         token,
         user: {
@@ -91,12 +91,12 @@ router.post('/user/register', async (req, res) => {
           email: user.email,
           phoneNumber: user.phoneNumber,
           name: user.name,
-          isVerified: user.isVerified
+          isVerified: user.isVerified,
         },
-        message: "User registered successfully. However, we couldn't send the verification email. Please try using the 'Resend Verification Email' button."
+        message:
+          "User registered successfully. However, we couldn't send the verification email. Please try using the 'Resend Verification Email' button.",
       });
     }
-
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ message: error.message });
@@ -147,34 +147,35 @@ router.post('/user/login', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-router.get('/verify-email', async (req, res) => {
-  const { token } = req.query;
-
+router.post('/verify-email-code', async (req, res) => {
+  const { email, code } = req.body;
+  console.log('Received verification request:', { email, code });
   try {
-    // Verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ email: decoded.email, verificationToken: token });
-
+    if (!email || !code) {
+      console.log('Missing email or code');
+      return res.status(400).json({ success: false, message: 'Email and code are required' });
+    }
+    const user = await User.findOne({ email });
+    console.log('Found user:', user ? 'Yes' : 'No', 'Stored code:', user?.verificationCode, 'Expires:', user?.verificationCodeExpires);
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired verification token' });
+      return res.status(400).json({ success: false, message: 'Invalid or incorrect verification code' });
     }
-
-    // Check if token is expired
-    if (user.verificationTokenExpires < Date.now()) {
-      return res.status(400).json({ message: 'Verification token has expired' });
+    if (user.verificationCode !== code) {
+      console.log('Code mismatch: Stored', user.verificationCode, 'Provided', code);
+      return res.status(400).json({ success: false, message: 'Invalid or incorrect verification code' });
     }
-
-    // Update user verification status
+    if (user.verificationCodeExpires < Date.now()) {
+      console.log('Code expired');
+      return res.status(400).json({ success: false, message: 'Verification code has expired' });
+    }
     user.isVerified = true;
-    user.verificationToken = undefined;
-    user.verificationTokenExpires = undefined;
+    user.verificationCode = undefined;
+    user.verificationCodeExpires = undefined;
     await user.save();
-
-    res.status(200).json({ message: 'Email verified successfully' });
+    res.status(200).json({ success: true, message: 'Email verified successfully' });
   } catch (error) {
     console.error('Verification error:', error);
-    res.status(400).json({ message: 'Invalid or expired verification token' });
+    res.status(500).json({ success: false, message: 'Server error during verification' });
   }
 });
 
@@ -195,19 +196,18 @@ router.post('/resend-verification', async (req, res) => {
       return res.status(400).json({ message: 'Email already verified' });
     }
 
-    const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    user.verificationToken = verificationToken;
-    user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
+    const verificationCode = generateVerificationCode();
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpires = Date.now() + 24 * 60 * 60 * 1000;
     await user.save();
 
     try {
-      const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
       const emailContent = `
         <h2>Email Verification - GoThrift</h2>
-        <p>You requested to resend the verification email.</p>
-        <p>Please verify your email by clicking the link below to access all features:</p>
-        <a href="${verificationLink}" style="background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 10px 0;">Verify Email</a>
-        <p>This link will expire in 24 hours.</p>
+        <p>You requested a verification code for your email.</p>
+        <p>Your verification code is: <strong>${verificationCode}</strong></p>
+        <p>Please enter this code on the verification page to complete the process.</p>
+        <p>This code will expire in 24 hours.</p>
         <p>If you didn't request this, please ignore this email.</p>
       `;
       await sendEmail(email, 'Verify Your Email - GoThrift', emailContent);

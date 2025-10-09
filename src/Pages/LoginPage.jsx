@@ -1,54 +1,52 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
+import axios from 'axios';
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [countdown, setCountdown] = useState(30);
   const [showPassword, setShowPassword] = useState(false);
-  const [showResendButton, setShowResendButton] = useState(false);
-  const { login, resendVerification } = useContext(AuthContext);
+  const [showResend, setShowResend] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || "/home";
 
-  // Check if user came from signup and set email + show resend button
+  // Prefill email from signup/verification and check verification status
   useEffect(() => {
     if (location.state?.email) {
-      setEmail(location.state.email); // Pre-fill email from signup
-      setShowResendButton(true); // Show resend button
-      setSuccessMessage("Please verify your email. A verification link has been sent to your email address.");
-
-      const messageTimer = setTimeout(() => {
-        setSuccessMessage("");
-      }, 5000);
-
-      const resendTimer = setTimeout(() => {
-        setShowResendButton(false);
-      }, 80000);
-
-      const countdownTimer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownTimer);
-            return 0;
+      setEmail(location.state.email);
+      setSuccessMessage("Please verify your email and log in.");
+      // Check verification status
+      axios.get(`http://localhost:5000/api/user`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      })
+        .then(response => {
+          if (!response.data.isVerified) {
+            setShowResend(true);
           }
-          return prev - 1;
+        })
+        .catch(err => {
+          console.error('Error checking user:', err);
         });
-      }, 1000);
-      // Cleanup timer on component unmount
-      return () => {
-        clearTimeout(messageTimer);
-        clearTimeout(resendTimer);
-        clearInterval(countdownTimer);
-      }
     }
   }, [location.state?.email]);
+
+  // Handle resend countdown
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setInterval(() => {
+        setResendCountdown(prev => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [resendCountdown]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,7 +54,6 @@ const LoginPage = () => {
     setSuccessMessage("");
     setLoading(true);
 
-    // Basic validation
     if (!email || !password) {
       setError("Please fill in all required fields");
       setLoading(false);
@@ -67,50 +64,33 @@ const LoginPage = () => {
       await login(email, password);
       navigate(from, { replace: true });
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Login error:", err);
       setError(err.message || "Login failed");
+      if (err.message.includes('not verified')) {
+        setShowResend(true);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleResendVerification = async () => {
-    if (!email) {
-      setError("Please enter your email to resend verification");
+    if (resendCountdown > 0) {
+      setError(`Please wait ${resendCountdown} seconds before resending`);
       return;
     }
-    setLoading(true);
-    setError("");
-    setSuccessMessage("");
+    setResendLoading(true);
+    setError('');
+    setSuccessMessage('');
 
     try {
-      const message = await resendVerification(email);
-      setSuccessMessage(message || "Verification email resent successfully");
-      setCountdown(60);
-
-      const messageTimer = setTimeout(() => {
-        setSuccessMessage("");
-      }, 5000);
-
-      const countdownTimer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownTimer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => {
-        clearTimeout(messageTimer),
-          clearInterval(countdownTimer);
-      };
+      const response = await axios.post('http://localhost:5000/api/resend-verification', { email });
+      setSuccessMessage(response.data.message || 'Verification code resent successfully');
+      setResendCountdown(20);
     } catch (err) {
-      setError(err.message || "Failed to resend verification email");
-      setSuccessMessage("");
+      setError(err.response?.data?.message || 'Failed to resend verification code');
     } finally {
-      setLoading(false);
+      setResendLoading(false);
     }
   };
 
@@ -121,11 +101,9 @@ const LoginPage = () => {
   return (
     <div className="bg-gradient-to-br from-pink-50 to-rose-100 min-h-screen flex items-center justify-center p-5 px-4">
       <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden">
-        {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-32 h-32 bg-rose-200 rounded-full -translate-x-16 -translate-y-16 opacity-50"></div>
         <div className="absolute bottom-0 right-0 w-24 h-24 bg-pink-200 rounded-full translate-x-12 translate-y-12 opacity-50"></div>
 
-        {/* Back button */}
         <button
           onClick={() => navigate("/home")}
           className="p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
@@ -136,7 +114,6 @@ const LoginPage = () => {
           </svg>
         </button>
 
-        {/* Admin Login Button */}
         <button
           onClick={handleAdminLogin}
           className="absolute top-4 right-4 p-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-full transition-all duration-200"
@@ -147,23 +124,17 @@ const LoginPage = () => {
           </svg>
         </button>
 
-        {/* Header */}
         <div className="text-center mb-8 relative z-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-rose-700 mb-2">
-            Welcome Back!
-          </h2>
-          <p className="text-rose-500 text-sm">
-            Sign in to your account
-          </p>
+          <h2 className="text-3xl font-bold text-rose-700 mb-2">Welcome Back!</h2>
+          <p className="text-rose-500 text-sm">Sign in to your account</p>
         </div>
 
-        {/* Success Message */}
         {successMessage && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center mb-6">
             <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +144,6 @@ const LoginPage = () => {
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center mb-6">
             <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,13 +153,10 @@ const LoginPage = () => {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-rose-700 mb-2">
-                Email Address
-              </label>
+              <label className="block text-sm font-semibold text-rose-700 mb-2">Email Address</label>
               <div className="relative">
                 <input
                   type="email"
@@ -206,9 +173,7 @@ const LoginPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-rose-700 mb-2">
-                Password
-              </label>
+              <label className="block text-sm font-semibold text-rose-700 mb-2">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -244,16 +209,21 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
-              } shadow-lg`}
+            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-200 ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 transform hover:scale-105 active:scale-95"
+            } shadow-lg`}
           >
             {loading ? (
               <div className="flex items-center justify-center">
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
                 </svg>
                 Processing...
               </div>
@@ -261,44 +231,27 @@ const LoginPage = () => {
               "Sign In"
             )}
           </button>
-
-          {showResendButton && (
-            <button
-              type="button"
-              onClick={handleResendVerification}
-              disabled={loading || countdown > 0}
-              className={`w-full py-4 rounded-xl font-semibold transition-all duration-200 ${loading || countdown > 0
-                ? "cursor-not-allowed opacity-50 bg-gray-300 text-gray-500 border-2 border-gray-200"
-                : "text-rose-600 border-2 border-rose-200 hover:bg-rose-50 bg-white"
-                }`}
-            >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Sending...
-                </div>
-              ) : countdown > 0 ? (
-                `Resend Verification Email (${countdown}s)`
-              ) : (
-                "Resend Verification Email"
-              )}
-            </button>
-          )}
         </form>
 
-        {/* Toggle to signup */}
+        {showResend && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={handleResendVerification}
+              className="text-rose-500 text-sm hover:underline disabled:opacity-50"
+              disabled={resendLoading || resendCountdown > 0}
+            >
+              {resendCountdown > 0 ? `Resend Verification Email (${resendCountdown}s)` : 'Resend Verification Email'}
+            </button>
+          </div>
+        )}
+
         <div className="mt-5 text-center relative z-10">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-rose-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-rose-500">
-                New to our platform?
-              </span>
+              <span className="px-4 bg-white text-rose-500">New to our platform?</span>
             </div>
           </div>
           <button
@@ -308,7 +261,6 @@ const LoginPage = () => {
             Create an account
           </button>
 
-          {/* Admin Login Button */}
           <div className="mt-4">
             <button
               onClick={handleAdminLogin}

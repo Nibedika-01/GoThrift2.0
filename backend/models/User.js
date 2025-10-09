@@ -15,16 +15,18 @@ const userSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
     },
-    isVerified:{
+    isVerified: {
         type: Boolean,
         default: false,
     },
-    verificationToken:{
+    verificationToken: {
         type: String
     },
-    verificationTokenExpires:{
+    verificationTokenExpires: {
         type: Date
     },
+    verificationCode: String,
+    verificationCodeExpires: Date,
     password: {
         type: String,
         required: true,
